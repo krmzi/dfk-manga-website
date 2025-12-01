@@ -16,7 +16,7 @@ const getFlag = (code: string) => {
 };
 
 const BrowseCard = ({ id, title, cover_image, rating, status, country, latestChNum, slug }: any) => (
-    <Link href={`/manga/${slug}`} className="group flex flex-col bg-[#0f0f10] border border-white/5 rounded-2xl overflow-hidden hover:border-red-600/40 hover:-translate-y-1 transition-all duration-300 shadow-lg">
+    <Link href={`/manga/${slug || id}`} className="group flex flex-col bg-[#0f0f10] border border-white/5 rounded-2xl overflow-hidden hover:border-red-600/40 hover:-translate-y-1 transition-all duration-300 shadow-lg">
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#1a1a1a]">
             <img
                 src={cover_image || "/placeholder.jpg"} alt={title}
