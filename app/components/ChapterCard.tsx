@@ -11,6 +11,7 @@ interface Chapter {
 
 interface Props {
     id: string;
+    slug: string; // ✅
     title: string;
     image: string;
     rating: string;
@@ -18,7 +19,7 @@ interface Props {
     status?: string;
 }
 
-export default function ChapterCard({ id, title, image, rating, chapters = [], status = "Ongoing" }: Props) {
+export default function ChapterCard({ id, title, image, rating, chapters = [], status = "Ongoing", slug }: Props) {
     const displayChapters = chapters.slice(0, 3);
 
     return (
@@ -26,7 +27,7 @@ export default function ChapterCard({ id, title, image, rating, chapters = [], s
 
             {/* === Image Section (Left) === */}
             <div className="relative w-[115px] flex-shrink-0 h-full">
-                <Link href={`/manga/${id}`} className="block w-full h-full">
+                <Link href={`/manga/${slug}`} className="block w-full h-full">
                     <img
                         src={image || "/placeholder.jpg"}
                         alt={title}
@@ -54,7 +55,7 @@ export default function ChapterCard({ id, title, image, rating, chapters = [], s
                 {/* Header */}
                 <div className="flex flex-col gap-1 mb-2">
                     <h3 className="text-white font-bold text-[14px] leading-tight line-clamp-1 hover:text-[#c026d3] transition-colors">
-                        <Link href={`/manga/${id}`} title={title}>{title}</Link>
+                        <Link href={`/manga/${slug}`} title={title}>{title}</Link>
                     </h3>
 
                     {/* Status & Rating Row */}
@@ -71,7 +72,7 @@ export default function ChapterCard({ id, title, image, rating, chapters = [], s
                     {displayChapters.map((ch, i) => (
                         <Link
                             key={i}
-                            href={`/manga/${id}/chapter/${ch.slug}`}
+                            href={`/manga/${slug}/chapter/${ch.slug}`}
                             className="flex items-center justify-between px-2.5 py-1.5 bg-[#1f1f1f] hover:bg-[#2a2a2a] rounded border border-[#2a2a2a] hover:border-[#3a3a3a] transition-all group/chapter"
                         >
                             <div className="flex items-center gap-2 overflow-hidden">

@@ -191,6 +191,7 @@ export default function AdminDashboard() {
 
   useEffect(() => { if (activeTab === 'manage-content') fetchContentMangas(); }, [activeTab]);
 
+  // ✅ تم تحديث دالة الرفع الجماعي لتستخدم المنطق المحسن (Regex + Sorting)
   const handleBulkUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     const zipFile = zipInputRef.current?.files?.[0];
@@ -202,31 +203,39 @@ export default function AdminDashboard() {
       const content = await zip.loadAsync(zipFile);
       const chaptersMap: Record<string, any[]> = {};
 
-      Object.keys(content.files).forEach((filename) => {
-        const file = content.files[filename];
-        if (file.dir || filename.includes('__MACOSX') || filename.includes('.DS_Store')) return;
-        const parts = filename.split('/');
-        const folderName = parts.length > 1 ? parts[0] : "root";
-        const match = folderName.match(/(\d+(\.\d+)?)/);
-        if (!match && parts.length > 1) return;
-        const chapterNumStr = match ? match[0] : "0";
+      Object.keys(content.files).forEach(path => {
+        const file = content.files[path];
+        // تجاهل المجلدات والملفات المخفية
+        if (!file.dir && !path.includes('__MACOSX') && !path.includes('.DS_Store')) {
+          const parts = path.split('/');
+          const folderName = parts[0];
+          // ✅ استخدام Regex المحسن لاستخراج رقم الفصل
+          const match = folderName.match(/(\d+(\.\d+)?)/);
 
-        if (!chaptersMap[chapterNumStr]) chaptersMap[chapterNumStr] = [];
-        chaptersMap[chapterNumStr].push(file);
+          if (match) {
+            const num = match[0];
+            if (!chaptersMap[num]) chaptersMap[num] = [];
+            chaptersMap[num].push(file);
+          }
+        }
       });
 
       const chapterNumbers = Object.keys(chaptersMap).sort((a, b) => parseFloat(a) - parseFloat(b));
+      if (chapterNumbers.length === 0) throw new Error("لم يتم العثور على مجلدات مرقمة داخل ZIP");
+
       setBulkTotal(chapterNumbers.length);
 
       for (let i = 0; i < chapterNumbers.length; i++) {
         const chNum = chapterNumbers[i];
         setBulkCurrent(i + 1);
-        const files = chaptersMap[chNum];
-        files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+
+        // ✅ ترتيب الصور داخل الفصل لضمان التسلسل الصحيح
+        const files = chaptersMap[chNum].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
         const uploadedUrls: string[] = [];
         for (let j = 0; j < files.length; j++) {
           setUploadStatus(`رفع فصل ${chNum}: صورة ${j + 1}/${files.length}`);
+          // ✅ استخدام دالة الرفع الأصلية التي تحتوي على ضغط الصور
           const blob = await files[j].async('blob');
           const url = await uploadToCloudinary(blob);
           uploadedUrls.push(url);
@@ -245,6 +254,7 @@ export default function AdminDashboard() {
     finally { setChapterUploading(false); setBulkTotal(0); setBulkCurrent(0); setUploadStatus(""); }
   };
 
+  // ✅ تم تحسين توليد الـ Slug
   const handleAddManga = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!mangaForm.title || !coverInputRef.current?.files?.[0]) return alert("بيانات ناقصة");
@@ -253,7 +263,10 @@ export default function AdminDashboard() {
       const coverUrl = await uploadToCloudinary(coverInputRef.current.files[0]);
       let bgUrl = coverUrl;
       if (bgInputRef.current?.files?.[0]) bgUrl = await uploadToCloudinary(bgInputRef.current.files[0]);
-      const cleanSlug = mangaForm.title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+
+      // ✅ تحسين توليد الـ Slug بإضافة trim
+      const cleanSlug = mangaForm.title.trim().toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+
       await supabase.from('mangas').insert({
         title: mangaForm.title, slug: cleanSlug, description: mangaForm.description,
         cover_image: coverUrl, bg_image: bgUrl, country: mangaForm.country,

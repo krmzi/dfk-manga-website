@@ -17,6 +17,7 @@ interface Chapter {
 
 interface Manga {
   id: string;
+  slug: string; // ✅
   title: string;
   cover_image: string;
   bg_image: string;
@@ -97,6 +98,7 @@ export default async function Home() {
   // 3. تحويل البيانات للشكل الذي يفهمه ChapterCard
   const displayContent = processedMangas?.map(manga => ({
     id: manga.id,
+    slug: manga.slug, // ✅
     title: manga.title,
     image: manga.cover_image,
     rating: manga.rating?.toString() || "0.0",
