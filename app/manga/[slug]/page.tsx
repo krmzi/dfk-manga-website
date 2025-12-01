@@ -1,9 +1,10 @@
 import { supabase } from '@/app/utils/supabase';
 import Link from 'next/link';
-import { Star, Clock, MapPin, Layers, BookOpen, Share2, List } from 'lucide-react';
+import { Star, Clock, MapPin, Layers, BookOpen, List } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import BookmarkButton from '@/app/components/BookmarkButton';
 import ViewCounter from '@/app/components/ViewCounter';
+import ShareButton from '@/app/components/ShareButton';
 
 export const revalidate = 0;
 
@@ -98,7 +99,7 @@ export default async function MangaDetails({ params }: Props) {
                             )}
                             <div className="grid grid-cols-2 gap-3">
                                 <BookmarkButton mangaId={manga.id} />
-                                <button className="py-3 bg-[#1a1a1a] border border-white/10 text-gray-300 font-bold rounded-xl flex items-center justify-center gap-2"><Share2 size={18} /> مشاركة</button>
+                                <ShareButton title={manga.title} />
                             </div>
                         </div>
                     </div>
