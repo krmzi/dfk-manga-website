@@ -109,8 +109,7 @@ export default function AdminDashboard() {
   const fetchUsersList = async () => {
     const { data } = await supabase
       .from('profiles' as any)
-      .select('*')
-      .order('created_at', { ascending: false });
+      .select('*');
     if (data) setUsersList(data);
   };
 
