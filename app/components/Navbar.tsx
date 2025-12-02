@@ -12,15 +12,26 @@ export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [user, setUser] = useState<any>(null);
     const [showUserMenu, setShowUserMenu] = useState(false);
+    const [userRole, setUserRole] = useState<string>('');
 
-    // إيميل الأدمن (أنت) - هذا هو المفتاح للتحكم
-    const MY_ADMIN_EMAIL = "dfk_admin2002@gmail.com";
-
-    // التحقق من المستخدم
+    // التحقق من المستخدم والصلاحيات
     useEffect(() => {
         const getUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             setUser(user);
+
+            // جلب صلاحيات المستخدم من قاعدة البيانات
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles' as any)
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profile) {
+                    setUserRole((profile as any).role || 'user');
+                }
+            }
         };
         getUser();
 
@@ -29,6 +40,7 @@ export default function Navbar() {
             setUser(session?.user ?? null);
             if (event === 'SIGNED_OUT') {
                 setShowUserMenu(false);
+                setUserRole('');
             }
         });
 
@@ -39,6 +51,7 @@ export default function Navbar() {
         await supabase.auth.signOut();
         setUser(null);
         setShowUserMenu(false);
+        setUserRole('');
         router.refresh();
         router.replace('/login');
     };
@@ -94,7 +107,7 @@ export default function Navbar() {
                     {user ? (
                         <div className="relative">
                             <button onClick={() => setShowUserMenu(!showUserMenu)} className="flex items-center gap-2 bg-[#1a1a1a] hover:bg-[#222] border border-white/10 rounded-full pl-4 pr-1 py-1 transition-all">
-                                <span className="text-xs font-bold text-white hidden sm:block max-w-[100px] truncate">{user.user_metadata.full_name || "الأدمن"}</span>
+                                <span className="text-xs font-bold text-white hidden sm:block max-w-[100px] truncate">{user.user_metadata.full_name || "المستخدم"}</span>
                                 <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-red-600 to-orange-600 flex items-center justify-center text-white font-bold text-xs shadow-lg">
                                     {user.email?.charAt(0).toUpperCase()}
                                 </div>
@@ -114,8 +127,8 @@ export default function Navbar() {
                                             المفضلة <Heart size={16} />
                                         </Link>
 
-                                        {/* ✅ زر لوحة التحكم: يظهر فقط للإيميل المحدد */}
-                                        {user.email === MY_ADMIN_EMAIL && (
+                                        {/* ✅ زر لوحة التحكم: يظهر للأدمن والمحررين */}
+                                        {(userRole === 'admin' || userRole === 'super_admin' || userRole === 'editor') && (
                                             <Link href="/admin" className="flex items-center gap-2 w-full p-2 text-sm font-bold text-red-500 bg-red-900/10 rounded hover:bg-red-900/20 mb-1" onClick={() => setShowUserMenu(false)}>
                                                 <ShieldCheck size={16} /> لوحة التحكم
                                             </Link>
