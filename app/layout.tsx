@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Cairo } from "next/font/google";
 import "./globals.css";
-import LayoutWrapper from "./components/LayoutWrapper"; 
+import LayoutWrapper from "./components/LayoutWrapper";
+import MobileBottomNav from "./components/MobileBottomNav";
 
 const cairo = Cairo({
   subsets: ["arabic"],
@@ -48,7 +49,10 @@ export default function RootLayout({
         {/* الغلاف الذكي: يتحكم في الناف بار والفوتر حسب الصفحة */}
         <LayoutWrapper>
           {children}
+          <div className="h-[80px] md:hidden"></div> {/* Spacer for Mobile Nav */}
         </LayoutWrapper>
+
+        <MobileBottomNav />
 
       </body>
     </html>

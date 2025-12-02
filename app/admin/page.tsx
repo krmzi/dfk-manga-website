@@ -173,18 +173,40 @@ export default function AdminDashboard() {
     if (viewingMangaId) fetchMangaChapters(viewingMangaId);
   };
 
+// === AUTH CHECK (THE FIX) ===
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.replace('/login'); return; }
-      const { data: profile } = await supabase.from('profiles' as any).select('role').eq('id', user.id).single();
-      const role = (profile as any)?.role;
-      if (role === 'admin' || role === 'super_admin' || role === 'editor') {
-        setCurrentUserRole(role);
-        setLoadingCheck(false);
-        fetchMangaList();
-        if (role === 'super_admin') fetchUsersList();
-      } else router.replace('/');
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) { 
+            router.replace('/login'); 
+            return; 
+        }
+
+        // ✅ التعديل الجوهري:
+        // إذا كان هذا إيميلك، اعتبر نفسك Super Admin فوراً وادخل
+        if (user.email === 'dfk_admin2002@gmail.com') {
+            setCurrentUserRole('super_admin');
+            setLoadingCheck(false);
+            
+            // قم بتحميل البيانات في الخلفية
+            fetchMangaList(); 
+            fetchUsersList(); // بما أنك سوبر أدمن
+            return; // انتهى التحقق، مسموح لك بالدخول
+        }
+
+        // --- التحقق العادي لباقي الأعضاء ---
+        const { data: profile } = await supabase.from('profiles' as any).select('role').eq('id', user.id).single();
+        const role = (profile as any)?.role;
+
+        if (role === 'admin' || role === 'super_admin' || role === 'editor') {
+            setCurrentUserRole(role);
+            setLoadingCheck(false);
+            fetchMangaList(); 
+            if (role === 'super_admin') fetchUsersList();
+        } else {
+            router.replace('/'); 
+        }
     };
     checkAuth();
   }, [router]);
