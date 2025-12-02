@@ -6,171 +6,77 @@ import { Search, Menu, User, X, LogOut, ChevronDown, ShieldCheck, Heart } from "
 import { supabase } from "@/app/utils/supabase";
 
 export default function Navbar() {
-    const pathname = usePathname();
-    const router = useRouter();
+  const pathname = usePathname();
+  const router = useRouter();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [user, setUser] = useState<any>(null);
-    const [showUserMenu, setShowUserMenu] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
+  // 🛑 هذا هو مفتاح الحل: نحدد إيميلك يدوياً
+  const SUPER_ADMIN_EMAIL = "dfk_admin2002@gmail.com"; 
 
-    // التحقق من المستخدم
-    useEffect(() => {
-        const checkUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
-
-            if (user) {
-                // جلب الرتبة من الداتابيز
-                const { data: profile } = await supabase
-                    .from('profiles' as any)
-                    .select('role')
-                    .eq('id', user.id)
-                    .single();
-
-                const userRole = (profile as any)?.role;
-
-                // إذا كان أدمن أو سوبر أدمن، نظهر الزر
-                if (['admin', 'super_admin'].includes(userRole)) {
-                    setIsAdmin(true);
-                } else {
-                    setIsAdmin(false);
-                }
-            } else {
-                setIsAdmin(false);
-            }
-        };
-        checkUser();
-
-        // الاستماع لتغيرات تسجيل الدخول
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            const currentUser = session?.user ?? null;
-            setUser(currentUser);
-
-            if (event === 'SIGNED_OUT') {
-                setShowUserMenu(false);
-                setIsAdmin(false);
-            } else if (currentUser) {
-                // جلب الرتبة عند تغيير حالة المصادقة
-                const { data: profile } = await supabase
-                    .from('profiles' as any)
-                    .select('role')
-                    .eq('id', currentUser.id)
-                    .single();
-
-                const userRole = (profile as any)?.role;
-                setIsAdmin(['admin', 'super_admin'].includes(userRole));
-            }
-        });
-
-        return () => subscription.unsubscribe();
-    }, []);
-
-    const handleLogout = async () => {
-        await supabase.auth.signOut();
-        setUser(null);
-        setShowUserMenu(false);
-        router.refresh();
-        router.replace('/login');
+  useEffect(() => {
+    const getUser = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
     };
+    getUser();
 
-    const isActive = (path: string) => pathname === path ? "text-red-500 font-black" : "text-gray-300 font-bold hover:text-white";
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
-    const navLinks = [
-        { name: "الرئيسية", path: "/" },
-        { name: "قائمة المانهوا", path: "/manga" },
-        { name: "المفضلة", path: "/bookmarks" },
-    ];
+  const handleLogout = async () => {
+      await supabase.auth.signOut();
+      setUser(null);
+      window.location.reload();
+  };
 
-    return (
-        <nav className="fixed top-0 w-full z-50 h-[72px] transition-all border-b border-white/5 bg-[#050505]/90 backdrop-blur-xl shadow-lg">
-            <div className="h-full w-full max-w-[1600px] mx-auto px-4 md:px-8 flex items-center justify-between">
-
-                <div className="flex items-center gap-12">
-                    <Link href="/" className="group flex items-center gap-1 select-none hover:scale-105 transition-transform">
-                        <span className="text-2xl md:text-3xl font-black tracking-tighter text-white">DFK</span>
-                        <span className="text-2xl md:text-3xl font-black tracking-tighter text-red-600">TEAM</span>
-                    </Link>
-
-                    <div className="hidden lg:flex items-center gap-8">
-                        {navLinks.map((link) => (
-                            <Link key={link.path} href={link.path} className={`text-base transition-colors duration-300 ${isActive(link.path)}`}>
-                                {link.name}
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-3 md:gap-4">
-                    {/* مربع البحث الذكي */}
-                    <div className="hidden md:flex items-center bg-[#151515] border border-white/10 rounded-full px-4 py-2 w-56 lg:w-64 hover:border-red-600/50 transition-all group focus-within:w-72 duration-300">
-                        <Search size={18} className="text-gray-400 group-focus-within:text-red-500 transition-colors" />
-                        <input
-                            type="text"
-                            placeholder="ابحث عن عمل..."
-                            className="bg-transparent border-none outline-none text-sm text-white mr-3 w-full placeholder-gray-600 font-bold text-right"
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    const val = (e.currentTarget.value).trim();
-                                    if (val) {
-                                        router.push(`/manga?search=${encodeURIComponent(val)}`);
-                                        e.currentTarget.value = "";
-                                        e.currentTarget.blur();
-                                    }
-                                }
-                            }}
-                        />
-                    </div>
-
-                    {user ? (
-                        <div className="relative">
-                            <button onClick={() => setShowUserMenu(!showUserMenu)} className="flex items-center gap-2 bg-[#1a1a1a] hover:bg-[#222] border border-white/10 rounded-full pl-4 pr-1 py-1 transition-all">
-                                <span className="text-xs font-bold text-white hidden sm:block max-w-[100px] truncate">{user.user_metadata.full_name || "المستخدم"}</span>
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-red-600 to-orange-600 flex items-center justify-center text-white font-bold text-xs shadow-lg">
-                                    {user.email?.charAt(0).toUpperCase()}
-                                </div>
-                                <ChevronDown size={14} className={`text-gray-500 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
-                            </button>
-
-                            {showUserMenu && (
-                                <>
-                                    <div className="fixed inset-0 z-10" onClick={() => setShowUserMenu(false)} />
-                                    <div className="absolute top-12 left-0 w-56 bg-[#111] border border-white/10 rounded-xl shadow-2xl z-20 overflow-hidden flex flex-col p-1.5 animate-in fade-in zoom-in-95">
-                                        <div className="px-3 py-2 border-b border-white/5 mb-1">
-                                            <p className="text-xs text-gray-500 font-medium">مسجل بـ</p>
-                                            <p className="text-xs text-white font-bold truncate">{user.email}</p>
-                                        </div>
-
-                                        <Link href="/bookmarks" onClick={() => setShowUserMenu(false)} className="flex items-center justify-between px-3 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white rounded-lg font-bold transition">
-                                            المفضلة <Heart size={16} />
-                                        </Link>
-
-                                        {/* ✅ زر لوحة التحكم: يظهر فقط للأدمن والسوبر أدمن */}
-                                        {isAdmin && (
-                                            <Link href="/admin" className="flex items-center gap-2 w-full p-2 text-sm font-bold text-red-500 bg-red-900/10 rounded hover:bg-red-900/20 mb-1" onClick={() => setShowUserMenu(false)}>
-                                                <ShieldCheck size={16} /> لوحة التحكم
-                                            </Link>
-                                        )}
-
-                                        <div className="h-px bg-white/5 my-1" />
-                                        <button onClick={handleLogout} className="flex items-center justify-between px-3 py-2.5 text-sm text-gray-400 hover:text-red-500 hover:bg-white/5 rounded-lg font-bold w-full transition">
-                                            <span>خروج</span> <LogOut size={16} />
-                                        </button>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    ) : (
-                        <Link href="/login">
-                            <button className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-black rounded-full transition-all active:scale-95">
-                                <User size={18} fill="currentColor" /> <span className="text-sm">دخول</span>
-                            </button>
-                        </Link>
-                    )}
-
-                    <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2.5 text-white bg-white/5 rounded-xl border border-white/5">{isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}</button>
-                </div>
+  return (
+    <nav className="fixed top-0 w-full z-50 h-[72px] bg-[#050505]/90 backdrop-blur-xl shadow-lg border-b border-white/5">
+      <div className="h-full w-full max-w-[1600px] mx-auto px-4 md:px-8 flex items-center justify-between">
+        <div className="flex items-center gap-12">
+            <Link href="/" className="text-2xl font-black text-white">DFK<span className="text-red-600">TEAM</span></Link>
+            {/* روابط سطح المكتب */}
+            <div className="hidden lg:flex items-center gap-8">
+                <Link href="/" className="text-gray-300 font-bold hover:text-white">الرئيسية</Link>
+                <Link href="/manga" className="text-gray-300 font-bold hover:text-white">قائمة المانهوا</Link>
             </div>
-        </nav>
-    );
+        </div>
+
+        <div className="flex items-center gap-3">
+             {/* منطقة المستخدم */}
+            {user ? (
+                <div className="relative">
+                    <button onClick={() => setShowUserMenu(!showUserMenu)} className="flex items-center gap-2 bg-[#1a1a1a] px-4 py-1.5 rounded-full border border-white/10">
+                        <span className="text-xs font-bold text-white truncate max-w-[100px]">{user.email?.split('@')[0]}</span>
+                        <ChevronDown size={14} className="text-gray-500" />
+                    </button>
+
+                    {showUserMenu && (
+                        <div className="absolute top-12 left-0 w-56 bg-[#111] border border-white/10 rounded-xl p-1 z-50">
+                            {/* 🛑 التحقق المباشر هنا: إذا كان الإيميل يطابق إيميلك، يظهر الزر فوراً */}
+                            {user.email === SUPER_ADMIN_EMAIL && (
+                                <Link href="/admin" className="flex items-center gap-2 px-3 py-2.5 mb-1 text-sm font-bold text-red-400 bg-red-500/10 rounded-lg">
+                                    <ShieldCheck size={16} /> لوحة التحكم
+                                </Link>
+                            )}
+                            <Link href="/bookmarks" className="flex items-center gap-2 px-3 py-2.5 mb-1 text-sm font-bold text-gray-300 hover:bg-white/5 rounded-lg">
+                                <Heart size={16} /> المفضلة
+                            </Link>
+                            <button onClick={handleLogout} className="flex items-center gap-2 px-3 py-2.5 w-full text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 rounded-lg">
+                                <LogOut size={16} /> خروج
+                            </button>
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <Link href="/login" className="bg-red-600 text-white px-6 py-2 rounded-full font-black text-sm">دخول</Link>
+            )}
+        </div>
+      </div>
+    </nav>
+  );
 }
