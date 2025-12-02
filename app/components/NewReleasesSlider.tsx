@@ -35,7 +35,7 @@ function VortexCard({ title, cover_image, country, rating, status, slug }: Manga
         // ✅ 3. استخدام slug في الرابط بدلاً من id
         <Link href={`/manga/${slug}`} className="group relative block w-full h-full">
             {/* الحاوية الرئيسية: تحدد الزوايا الدائرية وتخفي الزوائد */}
-            <div className="relative aspect-[3/4.2] rounded-xl overflow-hidden bg-[#1a1a1a] shadow-lg border border-white/5 transition-all duration-300 hover:shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:border-red-500/30">
+            <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-[#1a1a1a] shadow-lg border border-white/5 transition-all duration-300 hover:shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:border-red-500/30">
                 {/* 1. الصورة: إصلاح مشكلة عدم الظهور */}
                 <img
                     // نستخدم صورة احتياطية خارجية مضمونة بدلاً من الملف المحلي
