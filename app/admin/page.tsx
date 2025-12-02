@@ -7,7 +7,7 @@ import { supabase } from '@/app/utils/supabase';
 
 const AVAILABLE_GENRES = ["Action", "Adventure", "Fantasy", "System", "Murim", "Magic", "Drama", "Romance", "Horror", "Mystery", "Supernatural", "Sci-Fi"];
 
-interface MangaOption { id: string; title: string; cover_image?: string; }
+interface MangaOption { id: string; title: string; cover_image?: string | null; description?: string | null; country?: string; status?: string | null; rating?: number; genres?: string[]; bg_image?: string | null; slug?: string; }
 interface ChapterOption { id: string; chapter_number: number; created_at: string; images: string[]; }
 
 export default function AdminDashboard() {
@@ -42,7 +42,15 @@ export default function AdminDashboard() {
   const [usersList, setUsersList] = useState<any[]>([]);
   const [searchUser, setSearchUser] = useState('');
   const [bulkTotal, setBulkTotal] = useState(0);
+
   const [bulkCurrent, setBulkCurrent] = useState(0);
+
+  // EDIT MANGA STATE
+  const [editingManga, setEditingManga] = useState<MangaOption | null>(null);
+  const [editForm, setEditForm] = useState({ title: '', description: '', country: 'KR', status: 'Ongoing', rating: '0.0', genres: [] as string[] });
+  const [editCoverPreview, setEditCoverPreview] = useState<string | null>(null);
+  const editCoverInputRef = useRef<HTMLInputElement>(null);
+  const editBgInputRef = useRef<HTMLInputElement>(null);
 
   // IMAGE COMPRESSOR
   const compressImage = async (file: File | Blob): Promise<Blob> => {
@@ -170,6 +178,74 @@ export default function AdminDashboard() {
     alert("تم ✅");
     setEditingChapter(null);
     if (viewingMangaId) fetchMangaChapters(viewingMangaId);
+    if (viewingMangaId) fetchMangaChapters(viewingMangaId);
+  };
+
+  // EDIT MANGA FUNCTIONS
+  const handleEditMangaClick = async (manga: MangaOption) => {
+    // Fetch full details
+    const { data } = await supabase.from('mangas').select('*').eq('id', manga.id).single();
+    if (data) {
+      setEditingManga(data);
+      setEditForm({
+        title: data.title,
+        description: data.description || '',
+        country: data.country || 'KR',
+        status: data.status || 'Ongoing',
+        rating: data.rating?.toString() || '0.0',
+        genres: (data as any).genres || []
+      });
+      setEditCoverPreview(data.cover_image);
+    }
+  };
+
+  const saveMangaChanges = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingManga) return;
+
+    setUploading(true);
+    try {
+      let coverUrl = editingManga.cover_image;
+      let bgUrl = editingManga.bg_image;
+
+      if (editCoverInputRef.current?.files?.[0]) {
+        coverUrl = await uploadToCloudinary(editCoverInputRef.current.files[0]);
+      }
+      if (editBgInputRef.current?.files?.[0]) {
+        bgUrl = await uploadToCloudinary(editBgInputRef.current.files[0]);
+      }
+
+      const cleanSlug = editForm.title.trim().toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+
+      await supabase.from('mangas').update({
+        title: editForm.title,
+        slug: cleanSlug,
+        description: editForm.description,
+        country: editForm.country,
+        status: editForm.status,
+        rating: parseFloat(editForm.rating),
+        genres: editForm.genres,
+        cover_image: coverUrl,
+        bg_image: bgUrl
+      }).eq('id', editingManga.id);
+
+      alert("✅ تم تحديث المانهوا بنجاح!");
+      setEditingManga(null);
+      fetchContentMangas();
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const toggleEditGenre = (genre: string) => {
+    if (editForm.genres.includes(genre)) {
+      setEditForm(prev => ({ ...prev, genres: prev.genres.filter(g => g !== genre) }));
+    } else {
+      if (editForm.genres.length >= 5) return alert("5 حد أقصى");
+      setEditForm(prev => ({ ...prev, genres: [...prev.genres, genre] }));
+    }
   };
 
   // === AUTH CHECK (THE FIX) ===
@@ -559,6 +635,7 @@ export default function AdminDashboard() {
                         <h4 className="font-bold text-white truncate">{m.title}</h4>
                         <div className="flex gap-2 mt-3">
                           <button onClick={() => { setViewingMangaId(m.id); fetchMangaChapters(m.id) }} className="px-4 py-2 bg-blue-600/10 text-blue-400 text-xs font-bold rounded-xl hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2"><List size={14} /> الفصول</button>
+                          <button onClick={() => handleEditMangaClick(m)} className="px-4 py-2 bg-yellow-600/10 text-yellow-400 text-xs font-bold rounded-xl hover:bg-yellow-600 hover:text-white transition-all flex items-center gap-2"><Edit size={14} /> تعديل</button>
                           <button onClick={() => deleteManga(m.id)} className="px-4 py-2 bg-red-600/10 text-red-400 text-xs font-bold rounded-xl hover:bg-red-600 hover:text-white transition-all flex items-center gap-2"><Trash2 size={14} /> حذف</button>
                         </div>
                       </div>
@@ -662,6 +739,62 @@ export default function AdminDashboard() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* EDIT MANGA MODAL */}
+        {editingManga && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-gradient-to-br from-[#111] via-[#0d0d0d] to-[#111] w-full max-w-4xl rounded-3xl border border-[#222] shadow-[0_20px_80px_rgba(0,0,0,0.9)] animate-in zoom-in-95 my-8">
+              <div className="p-6 border-b border-[#222] flex justify-between items-center bg-[#0a0a0a]">
+                <h3 className="text-2xl font-black">تعديل المانهوا</h3>
+                <button onClick={() => setEditingManga(null)} className="bg-gradient-to-br from-[#222] to-[#111] hover:bg-red-600 text-white p-3 rounded-xl transition-all shadow-lg"><X size={20} /></button>
+              </div>
+
+              <form onSubmit={saveMangaChanges} className="p-8 space-y-8">
+                <div><label className="label-text">العنوان</label><input type="text" className="custom-input" placeholder="أدخل العنوان..." value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} /></div>
+                <div><label className="label-text">الوصف</label><textarea className="custom-input h-32 resize-none" placeholder="أضف وصفاً..." value={editForm.description} onChange={e => setEditForm({ ...editForm, description: e.target.value })} /></div>
+
+                <div>
+                  <label className="label-text">التصنيفات (5 كحد أقصى)</label>
+                  <div className="flex flex-wrap gap-3 p-6 bg-[#0a0a0a] rounded-2xl border border-[#222] shadow-inner">
+                    {AVAILABLE_GENRES.map(g => (
+                      <button type="button" key={g} onClick={() => toggleEditGenre(g)} className={`text-sm font-bold py-3 px-5 rounded-xl border-2 transition-all ${editForm.genres.includes(g) ? 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white border-yellow-500 shadow-[0_4px_20px_rgba(202,138,4,0.4)] scale-105' : 'bg-gradient-to-br from-[#151515] to-[#0a0a0a] border-[#333] text-gray-400 hover:border-yellow-600/50 hover:scale-105'}`}>{g}</button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-5">
+                  <div><label className="label-text">النوع</label><select className="custom-input" value={editForm.country} onChange={e => setEditForm({ ...editForm, country: e.target.value })}><option value="KR">🇰🇷 Manhwa</option><option value="JP">🇯🇵 Manga</option><option value="CN">🇨🇳 Manhua</option></select></div>
+                  <div><label className="label-text">الحالة</label><select className="custom-input" value={editForm.status} onChange={e => setEditForm({ ...editForm, status: e.target.value })}><option value="Ongoing">🔄 Ongoing</option><option value="Completed">✅ Completed</option></select></div>
+                  <div><label className="label-text">التقييم</label><input type="number" step="0.1" className="custom-input text-yellow-500 font-black" value={editForm.rating} onChange={e => setEditForm({ ...editForm, rating: e.target.value })} /></div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="bg-gradient-to-br from-[#111] via-[#0d0d0d] to-[#111] p-6 rounded-3xl border border-[#222] backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+                    <h3 className="text-xl font-black mb-5">الغلاف</h3>
+                    <div className="relative w-full aspect-[2/3] bg-gradient-to-br from-[#0a0a0a] to-[#050505] border-2 border-dashed border-[#333] rounded-2xl overflow-hidden flex items-center justify-center cursor-pointer hover:border-yellow-600 transition-all group shadow-inner" onClick={() => editCoverInputRef.current?.click()}>
+                      {editCoverPreview ? (
+                        <div className="relative w-full h-full">
+                          <img src={editCoverPreview} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <p className="text-white font-bold">تغيير</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center text-gray-500 group-hover:text-yellow-500 transition-colors">
+                          <ImageIcon size={48} className="mx-auto mb-3" />
+                          <span className="text-sm font-bold">اختر صورة</span>
+                        </div>
+                      )}
+                      <input type="file" className="hidden" ref={editCoverInputRef} onChange={(e) => { const file = e.target.files?.[0]; if (file) setEditCoverPreview(URL.createObjectURL(file)); }} accept="image/*" />
+                    </div>
+                    <div className="mt-6"><p className="label-text">الخلفية (اختياري)</p><input type="file" className="text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-yellow-600 file:text-white hover:file:bg-yellow-700 file:cursor-pointer file:transition-all" ref={editBgInputRef} accept="image/*" /></div>
+                  </div>
+                  <button type="submit" disabled={uploading} className="w-full py-5 bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white font-black rounded-2xl shadow-[0_8px_32px_rgba(202,138,4,0.4)] disabled:opacity-50 transition-all flex justify-center gap-2">{uploading ? <Loader2 className="animate-spin" /> : <Save />} حفظ التعديلات</button>
+                </div>
+              </form>
             </div>
           </div>
         )}
