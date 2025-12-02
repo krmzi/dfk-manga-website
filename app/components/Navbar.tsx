@@ -116,8 +116,8 @@ export default function Navbar() {
 
                                         {/* ✅ زر لوحة التحكم: يظهر فقط للإيميل المحدد */}
                                         {user.email === MY_ADMIN_EMAIL && (
-                                            <Link href="/admin" onClick={() => setShowUserMenu(false)} className="flex items-center justify-between px-3 py-2.5 text-sm text-red-400 bg-red-500/10 hover:bg-red-500/20 hover:text-red-500 rounded-lg font-black transition my-1 border border-red-500/20">
-                                                لوحة التحكم <ShieldCheck size={16} />
+                                            <Link href="/admin" className="flex items-center gap-2 w-full p-2 text-sm font-bold text-red-500 bg-red-900/10 rounded hover:bg-red-900/20 mb-1" onClick={() => setShowUserMenu(false)}>
+                                                <ShieldCheck size={16} /> لوحة التحكم
                                             </Link>
                                         )}
 
