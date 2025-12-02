@@ -188,9 +188,11 @@ export default function AdminDashboard() {
       if (user.email === 'dfk_admin2002@gmail.com') {
         setCurrentUserRole('super_admin');
         setLoadingCheck(false);
+
+        // قم بتحميل البيانات في الخلفية
         fetchMangaList();
-        fetchUsersList();
-        return;
+        fetchUsersList(); // بما أنك سوبر أدمن
+        return; // انتهى التحقق، مسموح لك بالدخول
       }
 
       // --- التحقق العادي لباقي الأعضاء ---
@@ -339,6 +341,7 @@ export default function AdminDashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
+
         {/* Header */}
         <div className="flex justify-between items-center mb-8 relative group">
           <div className="absolute inset-0 bg-gradient-to-r from-red-600/10 via-transparent to-green-600/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
@@ -590,74 +593,6 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* MANAGE TEAM */}
-        {activeTab === 'manage-team' && currentUserRole === 'super_admin' && (
-          <div className="bg-[#111] p-8 rounded-3xl border border-[#222] animate-in fade-in">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                <Users className="text-yellow-500" /> إدارة الأعضاء <span className="text-sm text-gray-500">({usersList.length})</span>
-              </h2>
-              <div className="relative">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-                <input 
-                  type="text" 
-                  placeholder="بحث بالبريد..." 
-                  className="custom-input pl-4 pr-10 py-2 text-sm w-64" 
-                  onChange={(e) => setSearchUser(e.target.value)} 
-                />
-              </div>
-            </div>
-
-            <div className="overflow-x-auto rounded-xl border border-[#222]">
-              <table className="w-full text-right text-sm">
-                <thead className="bg-[#0a0a0a] text-gray-500 text-xs uppercase font-bold">
-                  <tr>
-                    <th className="px-4 py-4">المستخدم</th>
-                    <th className="px-4 py-4">الرتبة الحالية</th>
-                    <th className="px-4 py-4">تغيير الصلاحية</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#222] bg-[#111]">
-                  {usersList.filter(u => u.email?.includes(searchUser)).map((u) => (
-                    <tr key={u.id} className="hover:bg-white/5 transition">
-                      <td className="px-4 py-4">
-                        <div className="font-bold text-white">{u.full_name || "مستخدم"}</div>
-                        <div className="text-xs text-gray-500 font-mono">{u.email}</div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span className={`px-2 py-1 rounded text-[10px] font-bold border uppercase ${
-                          u.role === 'super_admin' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' :
-                          u.role === 'admin' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
-                          u.role === 'editor' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
-                          'bg-gray-800 text-gray-400 border-gray-700'
-                        }`}>
-                          {u.role}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <select 
-                          className="bg-[#0a0a0a] border border-[#333] text-white rounded-lg px-2 py-1.5 text-xs outline-none focus:border-yellow-500 cursor-pointer"
-                          value={u.role} 
-                          onChange={(e) => updateUserRole(u.id, e.target.value)} 
-                          disabled={u.role === 'super_admin'}
-                        >
-                          <option value="user">User (عضو)</option>
-                          <option value="editor">Editor (محرر)</option>
-                          <option value="admin">Admin (مشرف)</option>
-                          <option value="super_admin">Super Admin (مدير)</option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {usersList.length === 0 && (
-                <div className="text-center py-8 text-gray-500 text-sm">لا يوجد أعضاء حالياً</div>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* EDIT MODAL */}
         {editingChapter && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -690,11 +625,49 @@ export default function AdminDashboard() {
           </div>
         )}
 
-      </div>
-    </div>
-  );
-}
+        {/* TEAM */}
+        {activeTab === 'manage-team' && currentUserRole === 'super_admin' && (
+          <div className="bg-gradient-to-br from-[#111] via-[#0d0d0d] to-[#111] p-10 rounded-3xl border border-[#222] backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] animate-in fade-in">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-3xl font-black">أعضاء الموقع <span className="text-yellow-500">({usersList.length})</span></h2>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={fetchUsersList}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl shadow-lg transition-all"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  تحديث القائمة
+                </button>
+                <input type="text" placeholder="بحث..." className="custom-input w-80" onChange={(e) => setSearchUser(e.target.value)} />
+              </div>
+            </div>
+            <div className="overflow-x-auto rounded-2xl border border-[#222] bg-[#0a0a0a]/50">
+              <table className="w-full text-right">
+                <thead className="text-gray-400 text-xs uppercase bg-gradient-to-r from-[#0a0a0a] via-[#111] to-[#0a0a0a] border-b border-[#222]">
+                  <tr><th className="px-6 py-5 font-black">المستخدم</th><th className="px-6 py-5 font-black">الصلاحية</th><th className="px-6 py-5 font-black">تغيير</th></tr>
+                </thead>
+                <tbody className="divide-y divide-[#222]">
+                  {usersList.filter(u => u.email?.includes(searchUser)).map((u) => (
+                    <tr key={u.id} className="hover:bg-gradient-to-r hover:from-white/5 hover:to-transparent transition-all">
+                      <td className="px-6 py-5 font-bold">{u.email}</td>
+                      <td className="px-6 py-5"><span className="bg-gradient-to-r from-gray-800 to-gray-900 px-4 py-2 rounded-xl text-xs font-bold border border-[#333]">{u.role}</span></td>
+                      <td className="px-6 py-5">
+                        <select className="bg-[#0a0a0a] border border-[#333] rounded-xl px-4 py-2 text-sm outline-none hover:border-yellow-600 focus:border-yellow-600 transition-all cursor-pointer font-bold"
+                          value={u.role} onChange={(e) => updateUserRole(u.id, e.target.value)} disabled={u.role === 'super_admin'}>
+                          <option value="user">User</option><option value="editor">Editor</option><option value="admin">Admin</option><option value="super_admin">Super Admin</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
+      </div>
 
       <style jsx global>{`
         @keyframes shimmer {
@@ -793,3 +766,6 @@ export default function AdminDashboard() {
           background: #555;
         }
       `}</style>
+    </div>
+  );
+}
