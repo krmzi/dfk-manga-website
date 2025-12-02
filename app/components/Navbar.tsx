@@ -11,38 +11,23 @@ export default function Navbar() {
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [user, setUser] = useState<any>(null);
-    const [isAdmin, setIsAdmin] = useState(false); // هل هو مشرف؟
     const [showUserMenu, setShowUserMenu] = useState(false);
 
-    // التحقق من الصلاحيات
+    // إيميل الأدمن (أنت) - هذا هو المفتاح للتحكم
+    const MY_ADMIN_EMAIL = "dfk_admin2002@gmail.com";
+
+    // التحقق من المستخدم
     useEffect(() => {
-        const checkUserRole = async () => {
+        const getUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             setUser(user);
-
-            if (user) {
-                // جلب الرتبة
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', user.id)
-                    .single();
-
-                // التحقق: هل هو أدمن أو سوبر أدمن؟
-                const userRole = profile?.role;
-                if (userRole === 'admin' || userRole === 'super_admin') {
-                    setIsAdmin(true);
-                }
-            }
         };
-
-        checkUserRole();
+        getUser();
 
         // الاستماع لتغيرات تسجيل الدخول
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             setUser(session?.user ?? null);
             if (event === 'SIGNED_OUT') {
-                setIsAdmin(false);
                 setShowUserMenu(false);
             }
         });
@@ -53,10 +38,9 @@ export default function Navbar() {
     const handleLogout = async () => {
         await supabase.auth.signOut();
         setUser(null);
-        setIsAdmin(false);
         setShowUserMenu(false);
         router.refresh();
-        router.push('/login');
+        router.replace('/login');
     };
 
     const isActive = (path: string) => pathname === path ? "text-red-500 font-black" : "text-gray-300 font-bold hover:text-white";
@@ -87,7 +71,6 @@ export default function Navbar() {
                 </div>
 
                 <div className="flex items-center gap-3 md:gap-4">
-                    {/* البحث */}
                     {/* مربع البحث الذكي */}
                     <div className="hidden md:flex items-center bg-[#151515] border border-white/10 rounded-full px-4 py-2 w-56 lg:w-64 hover:border-red-600/50 transition-all group focus-within:w-72 duration-300">
                         <Search size={18} className="text-gray-400 group-focus-within:text-red-500 transition-colors" />
@@ -95,17 +78,12 @@ export default function Navbar() {
                             type="text"
                             placeholder="ابحث عن عمل..."
                             className="bg-transparent border-none outline-none text-sm text-white mr-3 w-full placeholder-gray-600 font-bold text-right"
-                            // ✅ التعديل هنا:
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     const val = (e.currentTarget.value).trim();
                                     if (val) {
                                         router.push(`/manga?search=${encodeURIComponent(val)}`);
-
-                                        // 1. تفريغ الخانة
                                         e.currentTarget.value = "";
-
-                                        // 2. إزالة التركيز (لإبعاد الكيبورد أو المؤشر)
                                         e.currentTarget.blur();
                                     }
                                 }
@@ -136,8 +114,8 @@ export default function Navbar() {
                                             المفضلة <Heart size={16} />
                                         </Link>
 
-                                        {/* ✅ هذا هو الزر المفقود: يظهر الآن للأدمن والسوبر أدمن */}
-                                        {isAdmin && (
+                                        {/* ✅ زر لوحة التحكم: يظهر فقط للإيميل المحدد */}
+                                        {user.email === MY_ADMIN_EMAIL && (
                                             <Link href="/admin" onClick={() => setShowUserMenu(false)} className="flex items-center justify-between px-3 py-2.5 text-sm text-red-400 bg-red-500/10 hover:bg-red-500/20 hover:text-red-500 rounded-lg font-black transition my-1 border border-red-500/20">
                                                 لوحة التحكم <ShieldCheck size={16} />
                                             </Link>
