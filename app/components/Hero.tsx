@@ -4,16 +4,14 @@ import { Autoplay, Pagination, Navigation, Parallax, EffectFade } from 'swiper/m
 import { Play, Info, Star, ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
 import Link from 'next/link';
 
-// استيراد الأنماط
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/effect-fade';
 
-// ✅ إضافة slug
 interface MangaData {
   id: string;
-  slug: string; // ✅
+  slug: string;
   title: string;
   description?: string;
   cover_image: string;
@@ -22,34 +20,34 @@ interface MangaData {
 }
 
 interface HeroProps {
-  featuredMangas?: MangaData[]; // ✅ تغيير من مانجا واحدة إلى مصفوفة
+  featuredMangas?: MangaData[];
 }
 
 export default function Hero({ featuredMangas }: HeroProps) {
-  // ✅ دعم عدة أعمال أو عمل واحد
   if (!featuredMangas || featuredMangas.length === 0) return null;
 
-  // أخذ أول 5 أعمال للعرض في السلايدر
   const slides = featuredMangas.slice(0, 5);
 
+  const truncateText = (text: string, maxLength: number = 150) => {
+    if (!text || text.length <= maxLength) return text;
+    return text.substring(0, maxLength).trim() + '...';
+  };
+
   return (
-    <div className="w-full bg-[#050505] pt-6 pb-8 px-4 md:px-8 overflow-hidden">
-
-      {/* الحاوية الرئيسية: زوايا ناعمة وإطار مضيء خافت */}
-      <div className="max-w-[1250px] mx-auto relative group rounded-[32px] p-[1px] bg-gradient-to-b from-white/10 via-white/5 to-transparent">
-
+    <div className="w-full max-w-full bg-[#050505] pt-2 pb-4 px-2 md:pt-4 md:pb-8 md:px-8 overflow-hidden">
+      <div className="w-full max-w-[1400px] mx-auto relative group">
         <Swiper
           modules={[Autoplay, Pagination, Navigation, Parallax, EffectFade]}
-          parallax={true} // تفعيل حركة العمق 3D
-          effect="fade" // ✅ تأثير Fade للانتقال السلس
+          parallax={true}
+          effect="fade"
           fadeEffect={{ crossFade: true }}
-          speed={1200} // سرعة انتقالية بطيئة وفخمة
+          speed={1000}
           slidesPerView={1}
-          loop={slides.length > 1} // ✅ Loop فقط إذا كان هناك أكثر من سلايد
+          loop={slides.length > 1}
           autoplay={{
             delay: 6000,
             disableOnInteraction: false,
-            pauseOnMouseEnter: true // ✅ إيقاف مؤقت عند التمرير
+            pauseOnMouseEnter: true
           }}
           navigation={{
             nextEl: '.hero-next',
@@ -57,142 +55,134 @@ export default function Hero({ featuredMangas }: HeroProps) {
           }}
           pagination={{
             clickable: true,
-            renderBullet: (index, className) => `<span class="${className} custom-pagination-line"></span>`
+            el: '.custom-pagination',
           }}
-          className="w-full h-[450px] md:h-[550px] rounded-[31px] overflow-hidden bg-[#0a0a0a] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.7)] relative"
+          className="w-full h-[280px] md:h-[550px] rounded-xl md:rounded-3xl overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.5)]"
         >
           {slides.map((slide) => (
-            <SwiperSlide key={slide.id} className="relative w-full h-full overflow-hidden">
+            <SwiperSlide key={slide.id} className="relative w-full h-full">
 
-              {/* === الطبقة 1: الخلفية (تتحرك ببطء - Parallax) === */}
-              <div
-                className="absolute inset-0 z-0"
-                data-swiper-parallax="-23%" // الخلفية تتحرك أبطأ من المحتوى
-              >
+              {/* Background Image Layer */}
+              <div className="absolute inset-0 z-0">
                 <img
-                  src={slide.bg_image || slide.cover_image || "https://placehold.co/1920x1080/111/666?text=Hero+Background"}
+                  src={slide.bg_image || slide.cover_image || "https://placehold.co/1920x1080/111/666?text=Hero"}
                   alt={slide.title}
-                  className="w-full h-full object-cover scale-110 animate-cinematic-pan blur-sm"
-                  onError={(e) => {
-                    e.currentTarget.src = 'https://placehold.co/1920x1080/111/666?text=Hero+Background';
-                  }}
+                  className="w-full h-full object-cover scale-105 animate-subtle-zoom blur-[3px]"
                 />
-                {/* تراكب لوني متدرج واحترافي */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/80 via-transparent to-[#0a0a0a]/80" />
-                {/* طبقة Noise خفيفة لإخفاء عيوب الصورة */}
-                <div className="absolute inset-0 opacity-[0.15] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
+
+                {/* Stronger Gradient Overlay for Readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/60 via-transparent to-[#050505]/60" />
               </div>
 
-              {/* === الطبقة 2: المحتوى (يتحرك بسرعة - Parallax) === */}
-              <div className="relative z-10 h-full w-full flex flex-col justify-center items-center text-center px-4 pb-8">
+              {/* Content Layer */}
+              <div className="relative z-10 h-full w-full flex flex-col justify-end pb-12 md:pb-20 px-6 md:px-16">
 
-                {/* التصنيف (يظهر من الأعلى) */}
-                <div className="flex items-center gap-3 mb-5" data-swiper-parallax-y="-100" data-swiper-parallax-opacity="0">
-                  <div className="px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-lg flex items-center gap-2">
-                    <Sparkles size={10} className="text-yellow-400 animate-pulse" />
-                    Featured
+                {/* Top Badges */}
+                <div className="absolute top-6 right-6 md:top-10 md:right-12 flex items-center gap-3 animate-fade-in">
+                  <div className="px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[10px] md:text-xs font-bold text-white flex items-center gap-2 shadow-lg">
+                    <Sparkles size={12} className="text-yellow-400" />
+                    <span>مميز</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-yellow-400 font-bold text-sm bg-black/40 px-3 py-1 rounded-full border border-white/5 shadow-glow">
-                    <Star size={12} fill="currentColor" /> {slide.rating}
+                  <div className="px-3 py-1.5 rounded-full bg-yellow-500/20 backdrop-blur-md border border-yellow-500/20 text-[10px] md:text-xs font-bold text-yellow-400 flex items-center gap-1.5 shadow-lg">
+                    <Star size={12} fill="currentColor" />
+                    <span>{slide.rating}</span>
                   </div>
                 </div>
 
-                {/* العنوان (يظهر من الأسفل) */}
-                <h1
-                  className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight drop-shadow-2xl max-w-4xl"
-                  data-swiper-parallax-y="200" // يتحرك مسافة أطول
-                  data-swiper-parallax-duration="1000"
-                >
-                  {slide.title}
-                </h1>
+                <div className="w-full flex flex-col items-center md:items-start text-center md:text-right" dir="rtl">
 
-                {/* الوصف */}
-                <p
-                  className="text-gray-300/90 text-sm md:text-lg font-medium max-w-xl mb-8 leading-relaxed line-clamp-2 md:line-clamp-2"
-                  data-swiper-parallax-y="300"
-                  data-swiper-parallax-opacity="0"
-                >
-                  {slide.description || "اكتشف عالماً مليئاً بالمغامرة والإثارة مع أحدث فصول المانهوا المترجمة حصرياً."}
-                </p>
+                  {/* Title */}
+                  <h1 className="text-xl md:text-5xl lg:text-6xl font-black text-white mb-2 md:mb-4 leading-tight drop-shadow-2xl animate-slide-up max-w-4xl">
+                    {slide.title}
+                  </h1>
 
-                {/* الأزرار */}
-                <div
-                  className="flex flex-wrap items-center justify-center gap-4"
-                  data-swiper-parallax-y="400"
-                  data-swiper-parallax-opacity="0"
-                >
-                  {/* ✅ استخدام slug بدلاً من id */}
-                  <Link href={`/manga/${slide.slug}`}>
-                    <button className="group relative px-8 py-3.5 bg-white text-black rounded-full font-bold transition-transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(255,255,255,0.2)] overflow-hidden">
-                      <span className="relative z-10 flex items-center gap-2">
-                        <Play size={18} fill="currentColor" /> اقرأ الآن
-                      </span>
-                      {/* تأثير hover متحرك */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    </button>
-                  </Link>
+                  {/* Description */}
+                  <p className="hidden md:block text-gray-200 text-sm md:text-lg font-medium mb-8 leading-relaxed max-w-2xl line-clamp-2 animate-slide-up-delay drop-shadow-md">
+                    {truncateText(slide.description || "اكتشف عالماً مليئاً بالمغامرة والإثارة مع أحدث فصول المانهوا المترجمة حصرياً.", 150)}
+                  </p>
 
-                  <Link href={`/manga/${slide.slug}`}>
-                    <button className="flex items-center gap-2 px-8 py-3.5 rounded-full font-bold text-white border border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all hover:scale-105 active:scale-95 hover:border-white/20">
-                      <Info size={18} /> المزيد
-                    </button>
-                  </Link>
+                  {/* Buttons */}
+                  <div className="flex items-center gap-4 animate-slide-up-delay-2 w-full md:w-auto justify-center md:justify-start">
+                    <Link href={`/manga/${slide.slug}`} className="flex-1 md:flex-none">
+                      <button className="w-full md:w-auto px-8 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-xl font-bold text-base transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(220,38,38,0.4)] flex items-center justify-center gap-2">
+                        <Play size={20} fill="currentColor" />
+                        <span>اقرأ الآن</span>
+                      </button>
+                    </Link>
+
+                    <Link href={`/manga/${slide.slug}`} className="flex-1 md:flex-none">
+                      <button className="w-full md:w-auto px-8 py-3.5 rounded-xl font-bold text-base text-white border border-white/20 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                        <Info size={20} />
+                        <span>التفاصيل</span>
+                      </button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </SwiperSlide>
           ))}
+
+          {/* Custom Pagination Container */}
+          <div className="custom-pagination absolute bottom-4 left-0 right-0 z-20 flex justify-center gap-2" />
         </Swiper>
 
-        {/* === أزرار التنقل المخصصة (Hover Effect) === */}
-        {/* ✅ إظهار الأزرار فقط إذا كان هناك أكثر من سلايد */}
+        {/* Navigation Arrows */}
         {slides.length > 1 && (
           <>
-            <button className="hero-prev absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full border border-white/10 bg-black/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-600 hover:border-red-600 transition-all duration-500 -translate-x-4 group-hover:translate-x-0 active:scale-90">
+            <button className="hero-prev hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white items-center justify-center hover:bg-[#dc2626] hover:border-[#dc2626] transition-all duration-300 active:scale-95 group-hover:opacity-100 opacity-0">
               <ChevronLeft size={24} />
             </button>
-            <button className="hero-next absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full border border-white/10 bg-black/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-600 hover:border-red-600 transition-all duration-500 translate-x-4 group-hover:translate-x-0 active:scale-90">
+            <button className="hero-next hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white items-center justify-center hover:bg-[#dc2626] hover:border-[#dc2626] transition-all duration-300 active:scale-95 group-hover:opacity-100 opacity-0">
               <ChevronRight size={24} />
             </button>
           </>
         )}
-
       </div>
 
-      {/* === ستايلات CSS إضافية === */}
       <style jsx global>{`
-        /* حركة زووم وتحريك سينمائية للخلفية */
-        @keyframes cinematicPan {
-            0% { transform: scale(1.1); }
-            50% { transform: scale(1.15) translate(5px, -5px); }
+        @keyframes subtleZoom {
+            0% { transform: scale(1.05); }
             100% { transform: scale(1.1); }
         }
-        .animate-cinematic-pan {
-            animation: cinematicPan 20s ease-in-out infinite alternate;
+        .animate-subtle-zoom {
+            animation: subtleZoom 20s ease-in-out infinite alternate;
         }
 
-        /* تخصيص الباجينيشن (الخطوط السفلية) */
-        .custom-pagination-line {
-            width: 40px !important;
-            height: 3px !important;
-            background: rgba(255,255,255,0.2) !important;
-            border-radius: 2px;
-            margin: 0 4px !important;
-            transition: all 0.4s ease;
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        .animate-slide-up-delay {
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out 0.1s forwards;
+        }
+        .animate-slide-up-delay-2 {
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out 0.2s forwards;
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        /* Pagination Styling */
+        .swiper-pagination-bullet {
+            width: 8px !important;
+            height: 8px !important;
+            background: rgba(255,255,255,0.3) !important;
             opacity: 1 !important;
+            transition: all 0.3s ease !important;
+            border-radius: 50% !important;
         }
-        .swiper-pagination-bullet-active.custom-pagination-line {
-            background: #dc2626 !important; /* أحمر */
-            width: 60px !important;
-            box-shadow: 0 0 10px rgba(220,38,38,0.5);
-        }
-        .swiper-pagination {
-            bottom: 25px !important;
-        }
-
-        /* تأثير الظل للتقييم */
-        .shadow-glow {
-            box-shadow: 0 0 15px rgba(250, 204, 21, 0.3);
+        
+        .swiper-pagination-bullet-active {
+            background: #dc2626 !important;
+            width: 24px !important;
+            border-radius: 4px !important;
+            box-shadow: 0 0 10px rgba(220,38,38,0.5) !important;
         }
       `}</style>
     </div>

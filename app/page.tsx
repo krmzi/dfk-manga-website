@@ -119,7 +119,7 @@ export default async function Home() {
       {/* ✅ تمرير مصفوفة من الأعمال بدلاً من عمل واحد */}
       <Hero featuredMangas={(newReleasesData || []) as any} />
 
-      <div className="max-w-[1450px] mx-auto px-4 md:px-6 mt-10">
+      <div className="max-w-[1450px] mx-auto px-4 md:px-6 mt-6 md:mt-10">
 
         {/* 2. New Releases Slider */}
         <div className="mb-16 animate-fade-in-up">
@@ -141,7 +141,7 @@ export default async function Home() {
                   </div>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black text-white leading-none tracking-tight">
+                  <h2 className="text-xl md:text-2xl font-black text-white leading-none tracking-tight">
                     آخر <span className="text-transparent bg-clip-text bg-gradient-to-l from-red-500 to-red-700">التحديثات</span>
                   </h2>
                   <p className="text-xs text-gray-500 font-bold mt-1.5 tracking-wide">
@@ -172,8 +172,8 @@ export default async function Home() {
             {/* Modern Pagination */}
             {displayContent.length > 0 && (
               <div className="flex justify-center items-center gap-4 mt-20 mb-8 select-none">
-                <button className="flex items-center gap-2 px-6 py-3 bg-[#111] hover:bg-[#1a1a1a] border border-[#222] rounded-full text-sm font-bold text-gray-400 hover:text-white transition-all hover:shadow-[0_5px_15px_rgba(0,0,0,0.5)] group disabled:opacity-50">
-                  <ChevronRight size={18} className="group-hover:-translate-x-1 transition-transform" /> التالي
+                <button className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-[#111] hover:bg-[#1a1a1a] border border-[#222] rounded-full text-xs md:text-sm font-bold text-gray-400 hover:text-white transition-all hover:shadow-[0_5px_15px_rgba(0,0,0,0.5)] group disabled:opacity-50">
+                  <ChevronRight size={16} className="group-hover:-translate-x-1 transition-transform" /> التالي
                 </button>
 
                 <div className="flex items-center gap-2 bg-[#0a0a0a] px-3 py-2 rounded-full border border-[#222] shadow-inner">
@@ -184,8 +184,8 @@ export default async function Home() {
                   <button className="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 hover:text-white hover:bg-[#1a1a1a] font-bold text-sm transition-all">9</button>
                 </div>
 
-                <button className="flex items-center gap-2 px-6 py-3 bg-[#111] hover:bg-[#1a1a1a] border border-[#222] rounded-full text-sm font-bold text-gray-400 hover:text-white transition-all hover:shadow-[0_5px_15px_rgba(0,0,0,0.5)] group disabled:opacity-50">
-                  السابق <ChevronLeft size={18} className="group-hover:translate-x-1 transition-transform" />
+                <button className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-[#111] hover:bg-[#1a1a1a] border border-[#222] rounded-full text-xs md:text-sm font-bold text-gray-400 hover:text-white transition-all hover:shadow-[0_5px_15px_rgba(0,0,0,0.5)] group disabled:opacity-50">
+                  السابق <ChevronLeft size={16} className="group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
             )}

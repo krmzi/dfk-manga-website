@@ -10,6 +10,12 @@
 /* --- 1. تحسينات عامة --- */
 html {
   scroll-behavior: smooth;
+  -webkit-tap-highlight-color: rgba(220, 38, 38, 0.1); /* لون اللمس للموبايل */
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* لون التحديد للنص (Selection Color) - لمسة جمالية */
@@ -21,7 +27,17 @@ html {
 /* تنسيق شريط التمرير (Scrollbar) */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
+
+/* Mobile: scrollbar أرفع */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+}
+
 ::-webkit-scrollbar-track {
   background: #050505;
 }
@@ -35,6 +51,47 @@ html {
 
 /* --- 2. أدوات إضافية (Utilities) --- */
 @layer utilities {
+  /* Mobile-specific utilities */
+  .mobile-only {
+    display: none;
+  }
+  
+  @media (max-width: 1023px) {
+    .mobile-only {
+      display: block;
+    }
+  }
+  
+  .desktop-only {
+    display: none;
+  }
+  
+  @media (min-width: 1024px) {
+    .desktop-only {
+      display: block;
+    }
+  }
+  
+  /* Touch target - minimum 44x44px for mobile */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Mobile padding */
+  .mobile-padding {
+    padding: 1rem;
+  }
+  
+  @media (min-width: 768px) {
+    .mobile-padding {
+      padding: 1.5rem;
+    }
+  }
+  
   /* أنيميشن النص الساخن (يلمع) */
   .text-shine {
     background: linear-gradient(to right, #ef4444 20%, #fb923c 40%, #ef4444 60%, #ef4444 80%);
@@ -66,6 +123,21 @@ html {
   .stroke-text {
     -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
     color: transparent;
+  }
+  
+  /* Custom scrollbar for specific elements */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 4px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #dc2626;
   }
 }
 
@@ -112,6 +184,94 @@ html {
     animation: breathe 10s ease-in-out infinite alternate;
 }
 
+/* Mobile-specific animations (faster, lighter) */
+@media (max-width: 768px) {
+  .animate-fade-in-up {
+    animation: fade-in-up 0.4s ease-out forwards;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+/* Slide in from right (for mobile drawer) */
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Slide in from top */
+@keyframes slide-in-from-top-2 {
+  from {
+    transform: translateY(-8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Fade in */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Zoom in */
+@keyframes zoom-in-95 {
+  from {
+    transform: scale(0.95);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Tailwind-style animate utilities */
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.slide-in-from-right {
+  animation-name: slide-in-from-right;
+}
+
+.slide-in-from-top-2 {
+  animation-name: slide-in-from-top-2;
+}
+
+.fade-in {
+  animation-name: fade-in;
+}
+
+.zoom-in-95 {
+  animation-name: zoom-in-95;
+}
+
+.duration-100 {
+  animation-duration: 100ms;
+}
+
+.duration-200 {
+  animation-duration: 200ms;
+}
+
+.duration-300 {
+  animation-duration: 300ms;
+}
+
 /* --- 4. ستايلات Swiper (نقاط التنقل) --- */
 .swiper-pagination-bullet {
     background: #fff !important;
@@ -130,4 +290,16 @@ html {
 /* تدرج لوني للخلفية (Vignette) */
 .bg-radial-gradient {
     background: radial-gradient(circle at center, transparent 0%, #050505 90%);
+}
+
+/* Reduced motion support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

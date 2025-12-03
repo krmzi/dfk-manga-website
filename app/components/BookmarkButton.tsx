@@ -10,51 +10,78 @@ export default function BookmarkButton({ mangaId }: { mangaId: string }) {
     const [loading, setLoading] = useState(true);
     const [userId, setUserId] = useState<string | null>(null);
 
-    // 1. التحقق: هل المستخدم سجل دخول؟ وهل هذا العمل في مفضلته؟
     useEffect(() => {
+        let isMounted = true;
+
         const checkBookmark = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
 
-            if (user) {
-                setUserId(user.id);
-                const { data } = await supabase
-                    .from("bookmarks")
-                    .select("*")
-                    .eq("user_id", user.id)
-                    .eq("manga_id", mangaId)
-                    .single();
+                if (!isMounted) return;
 
-                if (data) setIsBookmarked(true);
+                if (user) {
+                    setUserId(user.id);
+                    const { data, error } = await supabase
+                        .from("bookmarks")
+                        .select("*")
+                        .eq("user_id", user.id)
+                        .eq("manga_id", mangaId)
+                        .maybeSingle();
+
+                    if (!isMounted) return;
+
+                    if (data && !error) {
+                        setIsBookmarked(true);
+                    }
+                }
+            } catch (error) {
+                console.error("Error checking bookmark:", error);
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
-            setLoading(false);
         };
+
         checkBookmark();
+
+        return () => {
+            isMounted = false;
+        };
     }, [mangaId]);
 
-    // 2. التعامل مع الضغط
     const toggleBookmark = async () => {
         if (!userId) {
-            // إذا لم يكن مسجلاً، نوجهه لصفحة الدخول
             return router.push("/login");
         }
 
-        // "تفاءل" بالنتيجة لتسريع الواجهة (Optimistic UI)
         const previousState = isBookmarked;
         setIsBookmarked(!isBookmarked);
 
-        if (previousState) {
-            // حذف
-            await supabase.from("bookmarks").delete().eq("user_id", userId).eq("manga_id", mangaId);
-        } else {
-            // إضافة
-            await supabase.from("bookmarks").insert({ user_id: userId, manga_id: mangaId });
-        }
+        try {
+            if (previousState) {
+                const { error } = await supabase
+                    .from("bookmarks")
+                    .delete()
+                    .eq("user_id", userId)
+                    .eq("manga_id", mangaId);
 
-        router.refresh(); // لتحديث البيانات في الخلفية
+                if (error) throw error;
+            } else {
+                const { error } = await supabase
+                    .from("bookmarks")
+                    .insert({ user_id: userId, manga_id: mangaId });
+
+                if (error) throw error;
+            }
+        } catch (error) {
+            console.error("Bookmark error:", error);
+            setIsBookmarked(previousState);
+        }
     };
 
     if (loading) return (
-        <button className="py-3 px-6 bg-[#1a1a1a] border border-white/10 rounded-xl flex items-center justify-center">
+        <button className="py-3 px-6 bg-[#1a1a1a] border border-white/10 rounded-xl flex items-center justify-center min-h-[48px]">
             <Loader2 className="animate-spin text-gray-500" size={18} />
         </button>
     );
@@ -62,7 +89,7 @@ export default function BookmarkButton({ mangaId }: { mangaId: string }) {
     return (
         <button
             onClick={toggleBookmark}
-            className={`py-3 px-6 rounded-xl border font-bold transition flex items-center justify-center gap-2 group w-full md:w-auto
+            className={`py-3 px-6 rounded-xl border font-bold transition flex items-center justify-center gap-2 group w-full md:w-auto min-h-[48px] active:scale-95
         ${isBookmarked
                     ? "bg-red-600 border-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.4)]"
                     : "bg-[#1a1a1a] border-white/10 text-gray-300 hover:bg-[#222] hover:text-white"

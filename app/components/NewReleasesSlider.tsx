@@ -92,24 +92,24 @@ export default function NewReleasesSlider({ mangas }: NewReleasesSliderProps) {
     if (!mangas || mangas.length === 0) return null;
 
     return (
-        <section className="w-full mb-16">
+        <section className="w-full max-w-full overflow-hidden mb-16 px-2 md:px-0">
 
             {/* === Header (نظيف ومينيماليست) === */}
             <div className="flex items-center justify-between mb-5 px-1">
                 <div className="flex items-center gap-2">
                     <Flame className="text-red-600 fill-red-600 animate-pulse" size={24} />
                     <h2 className="text-2xl font-black text-white tracking-wide">
-                        Popular Today
+                        الأكثر رواجاً
                     </h2>
                 </div>
 
                 {/* أزرار التنقل الدائرية الشفافة */}
                 <div className="flex gap-2">
                     <button className="nr-prev w-9 h-9 rounded-full bg-white/5 hover:bg-white/20 text-white border border-white/10 transition-all flex items-center justify-center active:scale-95">
-                        <ChevronLeft size={20} />
+                        <ChevronRight size={20} />
                     </button>
                     <button className="nr-next w-9 h-9 rounded-full bg-white/5 hover:bg-white/20 text-white border border-white/10 transition-all flex items-center justify-center active:scale-95">
-                        <ChevronRight size={20} />
+                        <ChevronLeft size={20} />
                     </button>
                 </div>
             </div>
@@ -117,8 +117,8 @@ export default function NewReleasesSlider({ mangas }: NewReleasesSliderProps) {
             {/* === Swiper Slider === */}
             <Swiper
                 modules={[Navigation, Autoplay]}
-                spaceBetween={16} // مسافة نظيفة بين الكروت
-                slidesPerView={2.3} // الموبايل
+                spaceBetween={12} // مسافة نظيفة بين الكروت
+                slidesPerView={2.2} // الموبايل - تقليل العرض قليلاً لضمان عدم الخروج
                 breakpoints={{
                     480: { slidesPerView: 3.3, spaceBetween: 16 }, // تابلت صغير
                     768: { slidesPerView: 4.3, spaceBetween: 16 }, // تابلت
