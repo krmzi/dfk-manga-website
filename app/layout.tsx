@@ -5,7 +5,6 @@ import LayoutWrapper from "./components/LayoutWrapper";
 import MobileBottomNav from "./components/MobileBottomNav";
 import { ToastProvider } from "@/app/providers/ToastProvider";
 import ToastContainer from "./components/ToastContainer";
-import ServiceWorkerRegistration from "./components/ServiceWorkerRegistration";
 import NotificationPrompt from "./components/NotificationPrompt";
 import QueryProvider from "./providers/QueryProvider";
 
@@ -78,7 +77,6 @@ export default function RootLayout({
 
             <MobileBottomNav />
             <ToastContainer />
-            <ServiceWorkerRegistration />
             <NotificationPrompt />
           </QueryProvider>
         </ToastProvider>
