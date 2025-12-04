@@ -328,15 +328,24 @@ export default function AdminDashboard() {
         // ✅ ترتيب الصور داخل الفصل لضمان التسلسل الصحيح
         const files = chaptersMap[chNum].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
-        const uploadedUrls: string[] = [];
-        for (let j = 0; j < files.length; j++) {
-          setUploadStatus(`رفع فصل ${chNum}: صورة ${j + 1}/${files.length}`);
-          // ✅ استخدام دالة الرفع الأصلية التي تحتوي على ضغط الصور
-          const blob = await files[j].async('blob');
-          const url = await uploadToCloudinary(blob);
-          uploadedUrls.push(url);
-        }
+// ✅ رفع الصور بشكل متوازي (5 صور في نفس الوقت)
+const BATCH_SIZE = 5;
+const uploadedUrls: string[] = [];
 
+for (let j = 0; j < files.length; j += BATCH_SIZE) {
+  const batch = files.slice(j, j + BATCH_SIZE);
+  setUploadStatus(`رفع فصل ${chNum}: ${j + 1}-${Math.min(j + BATCH_SIZE, files.length)}/${files.length}`);
+  
+  // رفع الدفعة بشكل متوازي
+  const batchUrls = await Promise.all(
+    batch.map(async (file) => {
+      const blob = await file.async('blob');
+      return uploadToCloudinary(blob);
+    })
+  );
+  
+  uploadedUrls.push(...batchUrls);
+}
         await supabase.from('chapters').insert({
           manga_id: selectedMangaId,
           chapter_number: parseFloat(chNum),
