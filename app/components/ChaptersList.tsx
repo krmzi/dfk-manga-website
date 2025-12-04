@@ -59,17 +59,19 @@ export default function ChaptersList({ chapters, mangaSlug, mangaId }: ChaptersL
                                 {isLoading ? (
                                     <div className="w-5 h-5 rounded-full bg-gray-700 animate-pulse"></div>
                                 ) : isRead ? (
-                                    <EyeOff
-                                        size={18}
-                                        className="text-green-500"
-                                        title="تم قراءته"
-                                    />
+                                    <span title="تم قراءته">
+                                        <EyeOff
+                                            size={18}
+                                            className="text-green-500"
+                                        />
+                                    </span>
                                 ) : (
-                                    <Eye
-                                        size={18}
-                                        className="text-gray-500"
-                                        title="لم يُقرأ"
-                                    />
+                                    <span title="لم يُقرأ">
+                                        <Eye
+                                            size={18}
+                                            className="text-gray-500"
+                                        />
+                                    </span>
                                 )}
                             </div>
                         </Link>
