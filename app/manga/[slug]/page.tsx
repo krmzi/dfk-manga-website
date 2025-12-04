@@ -5,11 +5,47 @@ import { notFound } from 'next/navigation';
 import BookmarkButton from '@/app/components/BookmarkButton';
 import ViewCounter from '@/app/components/ViewCounter';
 import ShareButton from '@/app/components/ShareButton';
+import ChaptersList from '@/app/components/ChaptersList';
+import { Metadata } from 'next';
 
 export const revalidate = 0;
 
 interface Props {
     params: Promise<{ slug: string }>;
+}
+
+// Generate dynamic metadata for SEO
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { slug } = await params;
+
+    const { data: manga } = await supabase
+        .from('mangas')
+        .select('title, description, cover_image, rating, status')
+        .eq('slug', slug)
+        .single();
+
+    if (!manga) {
+        return {
+            title: 'مانهوا غير موجودة | DFK Team',
+        };
+    }
+
+    return {
+        title: `${manga.title} | DFK Team`,
+        description: manga.description || `اقرأ ${manga.title} مترجم للعربية بأعلى جودة على DFK Team`,
+        openGraph: {
+            title: manga.title,
+            description: manga.description || `اقرأ ${manga.title} مترجم للعربية`,
+            images: [manga.cover_image],
+            type: 'article',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: manga.title,
+            description: manga.description || `اقرأ ${manga.title} مترجم للعربية`,
+            images: [manga.cover_image],
+        },
+    };
 }
 
 function formatDate(dateString: string) {
@@ -22,12 +58,13 @@ export default async function MangaDetails({ params }: Props) {
 
     const { slug } = await params;
 
-    // 1. محاولة جلب البيانات باستخدام Slug
+    // 1. محاولة جلب البيانات باستخدام Slug - مع إضافة id للفصول
     let { data: manga, error } = await supabase
         .from('mangas')
         .select(`
     *,
     chapters(
+        id,
         chapter_number,
         slug,
         created_at
@@ -43,6 +80,7 @@ export default async function MangaDetails({ params }: Props) {
             .select(`
     *,
     chapters(
+        id,
         chapter_number,
         slug,
         created_at
@@ -150,34 +188,12 @@ export default async function MangaDetails({ params }: Props) {
                                 <span className="text-xs md:text-sm text-gray-500 font-bold">{allChapters.length} فصل</span>
                             </div>
 
-                            {/* Chapters Grid - Mobile: More compact */}
-                            <div className="flex flex-col gap-2 max-h-[500px] md:max-h-[600px] overflow-y-auto custom-scrollbar pr-1">
-                                {allChapters.length > 0 ? (
-                                    allChapters.map((ch) => (
-                                        <Link
-                                            href={`/manga/${slug}/chapter/${ch.slug}`}
-                                            key={ch.chapter_number}
-                                            className="group flex items-center justify-between p-3 md:p-4 rounded-xl bg-[#151515] border border-[#222] hover:bg-[#1a1a1a] hover:translate-x-1 transition-all active:scale-[0.98] min-h-[56px]"
-                                        >
-                                            <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
-                                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#222] flex items-center justify-center text-gray-400 font-black text-base md:text-lg flex-shrink-0">
-                                                    {ch.chapter_number}
-                                                </div>
-                                                <div className="flex flex-col min-w-0 flex-1">
-                                                    <span className="font-bold text-sm md:text-base text-gray-200 group-hover:text-white truncate">
-                                                        الفصل {ch.chapter_number}
-                                                    </span>
-                                                    <span className="text-[10px] md:text-xs text-gray-600 flex gap-1 items-center">
-                                                        <Clock size={10} /> {formatDate(ch.created_at)}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    ))
-                                ) : (
-                                    <p className="text-center py-10 text-gray-500">لا توجد فصول</p>
-                                )}
-                            </div>
+                            {/* Chapters Grid with Read Status */}
+                            <ChaptersList
+                                chapters={allChapters}
+                                mangaSlug={slug}
+                                mangaId={manga.id}
+                            />
                         </div>
                     </div>
                 </div>

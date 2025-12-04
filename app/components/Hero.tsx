@@ -34,8 +34,8 @@ export default function Hero({ featuredMangas }: HeroProps) {
   };
 
   return (
-    <div className="w-full max-w-full bg-[#050505] pt-2 pb-4 px-2 md:pt-4 md:pb-8 md:px-8 overflow-hidden">
-      <div className="w-full max-w-[1400px] mx-auto relative group">
+    <div className="w-full bg-[#050505] pt-4 pb-4 px-4 md:px-8">
+      <div className="w-full max-w-full md:max-w-[1400px] mx-auto relative group">
         <Swiper
           modules={[Autoplay, Pagination, Navigation, Parallax, EffectFade]}
           parallax={true}
@@ -57,7 +57,7 @@ export default function Hero({ featuredMangas }: HeroProps) {
             clickable: true,
             el: '.custom-pagination',
           }}
-          className="w-full h-[280px] md:h-[550px] rounded-xl md:rounded-3xl overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+          className="w-full h-[260px] md:h-[500px] rounded-xl md:rounded-3xl overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.5)]"
         >
           {slides.map((slide) => (
             <SwiperSlide key={slide.id} className="relative w-full h-full">
@@ -76,16 +76,16 @@ export default function Hero({ featuredMangas }: HeroProps) {
               </div>
 
               {/* Content Layer */}
-              <div className="relative z-10 h-full w-full flex flex-col justify-end pb-12 md:pb-20 px-6 md:px-16">
+              <div className="relative z-10 h-full w-full flex flex-col justify-end pb-8 md:pb-20 px-4 md:px-16">
 
                 {/* Top Badges */}
-                <div className="absolute top-6 right-6 md:top-10 md:right-12 flex items-center gap-3 animate-fade-in">
-                  <div className="px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[10px] md:text-xs font-bold text-white flex items-center gap-2 shadow-lg">
-                    <Sparkles size={12} className="text-yellow-400" />
+                <div className="absolute top-4 right-4 md:top-10 md:right-12 flex items-center gap-2 md:gap-3 animate-fade-in">
+                  <div className="px-2 md:px-3 py-1 md:py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[9px] md:text-xs font-bold text-white flex items-center gap-1.5 md:gap-2 shadow-lg">
+                    <Sparkles size={10} className="text-yellow-400 md:w-3 md:h-3" />
                     <span>مميز</span>
                   </div>
-                  <div className="px-3 py-1.5 rounded-full bg-yellow-500/20 backdrop-blur-md border border-yellow-500/20 text-[10px] md:text-xs font-bold text-yellow-400 flex items-center gap-1.5 shadow-lg">
-                    <Star size={12} fill="currentColor" />
+                  <div className="px-2 md:px-3 py-1 md:py-1.5 rounded-full bg-yellow-500/20 backdrop-blur-md border border-yellow-500/20 text-[9px] md:text-xs font-bold text-yellow-400 flex items-center gap-1 md:gap-1.5 shadow-lg">
+                    <Star size={10} fill="currentColor" className="md:w-3 md:h-3" />
                     <span>{slide.rating}</span>
                   </div>
                 </div>
@@ -93,7 +93,7 @@ export default function Hero({ featuredMangas }: HeroProps) {
                 <div className="w-full flex flex-col items-center md:items-start text-center md:text-right" dir="rtl">
 
                   {/* Title */}
-                  <h1 className="text-xl md:text-5xl lg:text-6xl font-black text-white mb-2 md:mb-4 leading-tight drop-shadow-2xl animate-slide-up max-w-4xl">
+                  <h1 className="text-lg md:text-5xl lg:text-6xl font-black text-white mb-2 md:mb-4 leading-tight drop-shadow-2xl animate-slide-up max-w-4xl px-2 md:px-0">
                     {slide.title}
                   </h1>
 
@@ -103,17 +103,17 @@ export default function Hero({ featuredMangas }: HeroProps) {
                   </p>
 
                   {/* Buttons */}
-                  <div className="flex items-center gap-4 animate-slide-up-delay-2 w-full md:w-auto justify-center md:justify-start">
+                  <div className="flex items-center gap-2 md:gap-4 animate-slide-up-delay-2 w-full md:w-auto justify-center md:justify-start px-2 md:px-0">
                     <Link href={`/manga/${slide.slug}`} className="flex-1 md:flex-none">
-                      <button className="w-full md:w-auto px-8 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-xl font-bold text-base transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(220,38,38,0.4)] flex items-center justify-center gap-2">
-                        <Play size={20} fill="currentColor" />
+                      <button className="w-full md:w-auto px-4 md:px-8 py-2.5 md:py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-lg md:rounded-xl font-bold text-sm md:text-base transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(220,38,38,0.4)] flex items-center justify-center gap-2">
+                        <Play size={16} fill="currentColor" className="md:w-5 md:h-5" />
                         <span>اقرأ الآن</span>
                       </button>
                     </Link>
 
                     <Link href={`/manga/${slide.slug}`} className="flex-1 md:flex-none">
-                      <button className="w-full md:w-auto px-8 py-3.5 rounded-xl font-bold text-base text-white border border-white/20 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
-                        <Info size={20} />
+                      <button className="w-full md:w-auto px-4 md:px-8 py-2.5 md:py-3.5 rounded-lg md:rounded-xl font-bold text-sm md:text-base text-white border border-white/20 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                        <Info size={16} className="md:w-5 md:h-5" />
                         <span>التفاصيل</span>
                       </button>
                     </Link>
@@ -124,7 +124,7 @@ export default function Hero({ featuredMangas }: HeroProps) {
           ))}
 
           {/* Custom Pagination Container */}
-          <div className="custom-pagination absolute bottom-4 left-0 right-0 z-20 flex justify-center gap-2" />
+          <div className="custom-pagination absolute bottom-3 md:bottom-4 left-0 right-0 z-20 flex justify-center gap-2" />
         </Swiper>
 
         {/* Navigation Arrows */}
@@ -170,8 +170,8 @@ export default function Hero({ featuredMangas }: HeroProps) {
 
         /* Pagination Styling */
         .swiper-pagination-bullet {
-            width: 8px !important;
-            height: 8px !important;
+            width: 6px !important;
+            height: 6px !important;
             background: rgba(255,255,255,0.3) !important;
             opacity: 1 !important;
             transition: all 0.3s ease !important;
@@ -180,7 +180,7 @@ export default function Hero({ featuredMangas }: HeroProps) {
         
         .swiper-pagination-bullet-active {
             background: #dc2626 !important;
-            width: 24px !important;
+            width: 20px !important;
             border-radius: 4px !important;
             box-shadow: 0 0 10px rgba(220,38,38,0.5) !important;
         }

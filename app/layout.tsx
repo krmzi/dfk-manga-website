@@ -3,6 +3,10 @@ import { Cairo } from "next/font/google";
 import "./globals.css";
 import LayoutWrapper from "./components/LayoutWrapper";
 import MobileBottomNav from "./components/MobileBottomNav";
+import { ToastProvider } from "./contexts/ToastContext";
+import ToastContainer from "./components/ToastContainer";
+import ServiceWorkerRegistration from "./components/ServiceWorkerRegistration";
+import NotificationPrompt from "./components/NotificationPrompt";
 
 const cairo = Cairo({
   subsets: ["arabic"],
@@ -26,14 +30,26 @@ export const metadata: Metadata = {
     template: "%s | DFK Team", // هذا يجعل العناوين ديناميكية في الصفحات الداخلية
   },
   description: "استمتع بقراءة أحدث فصول المانهوا والمانجا والويب تون مترجمة للغة العربية بأعلى جودة وبشكل مجاني.",
+  keywords: ["مانهوا", "مانجا", "ويب تون", "مانهوا مترجمة", "DFK Team", "قراءة مانهوا"],
+  authors: [{ name: "DFK Team" }],
   icons: {
     icon: "/favicon.ico", // تأكد من وجود صورة اللوجو بهذا الاسم في مجلد public
   },
   openGraph: {
-    title: "DFK Team",
+    title: "DFK Team | منصة المانهوا العربية",
     description: "منصة قراءة المانهوا الأفضل عربياً",
     type: "website",
     locale: "ar_AR",
+    siteName: "DFK Team",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DFK Team",
+    description: "منصة قراءة المانهوا الأفضل عربياً",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
@@ -43,17 +59,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
       <body className={`${cairo.className} bg-[#050505] text-[#ededed] overflow-x-hidden min-h-screen flex flex-col`}>
+        <ToastProvider>
+          {/* الغلاف الذكي: يتحكم في الناف بار والفوتر حسب الصفحة */}
+          <LayoutWrapper>
+            {children}
+            <div className="h-[80px] md:hidden"></div> {/* Spacer for Mobile Nav */}
+          </LayoutWrapper>
 
-        {/* الغلاف الذكي: يتحكم في الناف بار والفوتر حسب الصفحة */}
-        <LayoutWrapper>
-          {children}
-          <div className="h-[80px] md:hidden"></div> {/* Spacer for Mobile Nav */}
-        </LayoutWrapper>
-
-        <MobileBottomNav />
-
+          <MobileBottomNav />
+          <ToastContainer />
+          <ServiceWorkerRegistration />
+          <NotificationPrompt />
+        </ToastProvider>
       </body>
     </html>
   );

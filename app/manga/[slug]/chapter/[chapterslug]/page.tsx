@@ -1,6 +1,7 @@
 import { supabase } from '@/app/utils/supabase';
 import { notFound } from 'next/navigation';
 import ChapterReaderClient from '@/app/components/ChapterReaderClient';
+import MarkAsRead from '@/app/components/MarkAsRead';
 
 export const revalidate = 0;
 
@@ -50,11 +51,14 @@ export default async function ChapterReader({ params }: Props) {
     .single();
 
   return (
-    <ChapterReaderClient
-      mangaData={manga}
-      chapterData={currentChapter}
-      prevChap={prevChap}
-      nextChap={nextChap}
-    />
+    <>
+      <MarkAsRead chapterId={currentChapter.id} mangaId={manga.id} />
+      <ChapterReaderClient
+        mangaData={manga}
+        chapterData={currentChapter}
+        prevChap={prevChap}
+        nextChap={nextChap}
+      />
+    </>
   );
 }

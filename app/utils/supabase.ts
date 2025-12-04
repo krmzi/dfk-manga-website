@@ -135,6 +135,51 @@ export type Database = {
                 }
                 Relationships: []
             }
+            push_subscriptions: {
+                Row: {
+                    id: string
+                    endpoint: string
+                    keys: Json
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    endpoint: string
+                    keys: Json
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    endpoint?: string
+                    keys?: Json
+                    created_at?: string
+                }
+                Relationships: []
+            }
+            chapter_reads: {
+                Row: {
+                    id: string
+                    user_id: string
+                    chapter_id: string
+                    manga_id: string
+                    read_at: string
+                }
+                Insert: {
+                    id?: string
+                    user_id: string
+                    chapter_id: string
+                    manga_id: string
+                    read_at?: string
+                }
+                Update: {
+                    id?: string
+                    user_id?: string
+                    chapter_id?: string
+                    manga_id?: string
+                    read_at?: string
+                }
+                Relationships: []
+            }
         }
         Views: {
             [_ in never]: never

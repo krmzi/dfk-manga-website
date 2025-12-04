@@ -119,7 +119,7 @@ export default async function Home() {
       {/* ✅ تمرير مصفوفة من الأعمال بدلاً من عمل واحد */}
       <Hero featuredMangas={(newReleasesData || []) as any} />
 
-      <div className="max-w-[1450px] mx-auto px-4 md:px-6 mt-6 md:mt-10">
+      <div className="w-full max-w-full md:max-w-[1450px] mx-auto px-4 md:px-6 mt-6 md:mt-10">
 
         {/* 2. New Releases Slider */}
         <div className="mb-16 animate-fade-in-up">
@@ -169,8 +169,8 @@ export default async function Home() {
               )}
             </div>
 
-            {/* Modern Pagination */}
-            {displayContent.length > 0 && (
+            {/* Modern Pagination - Only show if more than one page would exist */}
+            {displayContent.length > 9 && (
               <div className="flex justify-center items-center gap-4 mt-20 mb-8 select-none">
                 <button className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-[#111] hover:bg-[#1a1a1a] border border-[#222] rounded-full text-xs md:text-sm font-bold text-gray-400 hover:text-white transition-all hover:shadow-[0_5px_15px_rgba(0,0,0,0.5)] group disabled:opacity-50">
                   <ChevronRight size={16} className="group-hover:-translate-x-1 transition-transform" /> التالي
@@ -178,10 +178,6 @@ export default async function Home() {
 
                 <div className="flex items-center gap-2 bg-[#0a0a0a] px-3 py-2 rounded-full border border-[#222] shadow-inner">
                   <button className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-red-600 to-red-800 text-white font-black text-sm shadow-[0_4px_10px_rgba(220,38,38,0.4)] transform scale-110">1</button>
-                  <button className="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 hover:text-white hover:bg-[#1a1a1a] font-bold text-sm transition-all">2</button>
-                  <button className="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 hover:text-white hover:bg-[#1a1a1a] font-bold text-sm transition-all">3</button>
-                  <span className="text-gray-700 px-1 font-black pb-2">...</span>
-                  <button className="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 hover:text-white hover:bg-[#1a1a1a] font-bold text-sm transition-all">9</button>
                 </div>
 
                 <button className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-[#111] hover:bg-[#1a1a1a] border border-[#222] rounded-full text-xs md:text-sm font-bold text-gray-400 hover:text-white transition-all hover:shadow-[0_5px_15px_rgba(0,0,0,0.5)] group disabled:opacity-50">
@@ -192,7 +188,7 @@ export default async function Home() {
           </div>
 
           {/* 4. Sidebar (25%) */}
-          <div className="w-full xl:w-[25%] min-w-[300px]">
+          <div className="w-full xl:w-[25%]">
             <div className="sticky top-28 space-y-10">
               <Sidebar topMangas={topRatedData as any || []} />
             </div>
