@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             card: 'summary_large_image',
             title: manga.title,
             description: manga.description || `اقرأ ${manga.title} مترجم للعربية`,
-            images: [manga.cover_image],
+            images: manga.cover_image ? [manga.cover_image] : [],
         },
     };
 }
