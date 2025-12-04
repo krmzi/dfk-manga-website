@@ -19,7 +19,6 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
     const [toasts, setToasts] = useState<Toast[]>([]);
-    console.log('ToastProvider mounted');
 
     const addToast = useCallback((message: string, type: ToastType = 'info') => {
         const id = Math.random().toString(36).substr(2, 9);

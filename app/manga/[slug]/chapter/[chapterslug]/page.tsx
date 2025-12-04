@@ -2,6 +2,7 @@ import { supabase } from '@/app/utils/supabase';
 import { notFound } from 'next/navigation';
 import ChapterReaderClient from '@/app/components/ChapterReaderClient';
 import MarkAsRead from '@/app/components/MarkAsRead';
+import CommentsSection from '@/app/components/comments/CommentsSection';
 
 export const revalidate = 0;
 
@@ -59,6 +60,7 @@ export default async function ChapterReader({ params }: Props) {
         prevChap={prevChap}
         nextChap={nextChap}
       />
+      <CommentsSection chapterId={currentChapter.id} />
     </>
   );
 }

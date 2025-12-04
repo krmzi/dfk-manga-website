@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { Bell, BellOff, X } from 'lucide-react';
-import { useToast } from '../contexts/ToastContext';
+import { useToast } from '@/app/providers/ToastProvider';
 
 export default function NotificationPrompt() {
     const [showPrompt, setShowPrompt] = useState(false);

@@ -1,5 +1,5 @@
 "use client";
-import { useToast } from '../contexts/ToastContext';
+import { useToast } from '@/app/providers/ToastProvider';
 import { CheckCircle, XCircle, Info, AlertTriangle, X } from 'lucide-react';
 
 export default function ToastContainer() {

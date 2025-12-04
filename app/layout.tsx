@@ -3,10 +3,11 @@ import { Cairo } from "next/font/google";
 import "./globals.css";
 import LayoutWrapper from "./components/LayoutWrapper";
 import MobileBottomNav from "./components/MobileBottomNav";
-import { ToastProvider } from "./contexts/ToastContext";
+import { ToastProvider } from "@/app/providers/ToastProvider";
 import ToastContainer from "./components/ToastContainer";
 import ServiceWorkerRegistration from "./components/ServiceWorkerRegistration";
 import NotificationPrompt from "./components/NotificationPrompt";
+import QueryProvider from "./providers/QueryProvider";
 
 const cairo = Cairo({
   subsets: ["arabic"],
@@ -68,16 +69,18 @@ export default function RootLayout({
       </head>
       <body className={`${cairo.className} bg-[#050505] text-[#ededed] overflow-x-hidden min-h-screen flex flex-col`}>
         <ToastProvider>
-          {/* الغلاف الذكي: يتحكم في الناف بار والفوتر حسب الصفحة */}
-          <LayoutWrapper>
-            {children}
-            <div className="h-[80px] md:hidden"></div> {/* Spacer for Mobile Nav */}
-          </LayoutWrapper>
+          <QueryProvider>
+            {/* الغلاف الذكي: يتحكم في الناف بار والفوتر حسب الصفحة */}
+            <LayoutWrapper>
+              {children}
+              <div className="h-[80px] md:hidden"></div> {/* Spacer for Mobile Nav */}
+            </LayoutWrapper>
 
-          <MobileBottomNav />
-          <ToastContainer />
-          <ServiceWorkerRegistration />
-          <NotificationPrompt />
+            <MobileBottomNav />
+            <ToastContainer />
+            <ServiceWorkerRegistration />
+            <NotificationPrompt />
+          </QueryProvider>
         </ToastProvider>
       </body>
     </html>

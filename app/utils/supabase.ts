@@ -180,6 +180,36 @@ export type Database = {
                 }
                 Relationships: []
             }
+            comments: {
+                Row: {
+                    id: string
+                    chapter_id: string
+                    user_id: string
+                    username: string
+                    content: string
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    chapter_id: string
+                    user_id: string
+                    username: string
+                    content: string
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    chapter_id?: string
+                    user_id?: string
+                    username?: string
+                    content?: string
+                    created_at?: string
+                    updated_at?: string
+                }
+                Relationships: []
+            }
         }
         Views: {
             [_ in never]: never
