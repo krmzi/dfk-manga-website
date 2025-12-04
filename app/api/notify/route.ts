@@ -3,12 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import webpush from 'web-push';
 import { supabase } from '@/app/utils/supabase';
 
-// Configure web-push with VAPID keys
-webpush.setVapidDetails(
-    'mailto:admin@dfk-team.com',
-    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '',
-    process.env.VAPID_PRIVATE_KEY || ''
-);
+// Configure web-push with VAPID keys only if they exist
+if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+    webpush.setVapidDetails(
+        'mailto:admin@dfk-team.com',
+        process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+        process.env.VAPID_PRIVATE_KEY
+    );
+}
 
 export async function POST(request: NextRequest) {
     try {
