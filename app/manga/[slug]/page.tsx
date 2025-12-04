@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         openGraph: {
             title: manga.title,
             description: manga.description || `اقرأ ${manga.title} مترجم للعربية`,
-            images: [manga.cover_image],
+            images: manga.cover_image ? [manga.cover_image] : [],
             type: 'article',
         },
         twitter: {
