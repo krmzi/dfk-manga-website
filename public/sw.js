@@ -1,10 +1,9 @@
-// Service Worker for PWA and Push Notifications
-const CACHE_NAME = 'dfk-team-v1';
+// Service Worker for PWA and Push Notifications - v2.0.0
+const CACHE_NAME = 'dfk-team-v2';
 const urlsToCache = [
     '/',
     '/manga',
     '/bookmarks',
-    '/offline',
 ];
 
 // Install event - cache essential files
@@ -33,21 +32,11 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - Network first, fallback to cache
 self.addEventListener('fetch', (event) => {
     event.respondWith(
-        caches.match(event.request).then((response) => {
-            // Cache hit - return response
-            if (response) {
-                return response;
-            }
-
-            return fetch(event.request).then((response) => {
-                // Check if valid response
-                if (!response || response.status !== 200 || response.type !== 'basic') {
-                    return response;
-                }
-
+        fetch(event.request)
+            .then((response) => {
                 // Clone the response
                 const responseToCache = response.clone();
 
@@ -56,8 +45,11 @@ self.addEventListener('fetch', (event) => {
                 });
 
                 return response;
-            });
-        })
+            })
+            .catch(() => {
+                // Network failed, try cache
+                return caches.match(event.request);
+            })
     );
 });
 
