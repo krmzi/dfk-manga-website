@@ -291,9 +291,9 @@ export default function AdminDashboard() {
           }
         }
 
-        // Load data if role is set (or if we are super admin by email)
+        // Load data for all admins
+        fetchMangaList();
         if (user.email === 'dfk_admin2002@gmail.com') {
-          fetchMangaList();
           fetchUsersList();
         }
 
