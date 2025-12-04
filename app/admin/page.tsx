@@ -243,6 +243,7 @@ export default function AdminDashboard() {
       setEditForm(prev => ({ ...prev, genres: prev.genres.filter(g => g !== genre) }));
     } else {
       if (editForm.genres.length >= 5) return alert("5 حد أقصى");
+      setEditForm(prev => ({ ...prev, genres: [...prev.genres, genre] }));
     }
   };
 
@@ -250,6 +251,11 @@ export default function AdminDashboard() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // Safety timeout
+        const timeoutId = setTimeout(() => {
+          setLoadingCheck(false);
+        }, 3000);
+
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {
@@ -260,6 +266,7 @@ export default function AdminDashboard() {
         if (user.email === 'dfk_admin2002@gmail.com') {
           setCurrentUserRole('super_admin');
           setLoadingCheck(false);
+          clearTimeout(timeoutId);
         } else {
           const { data: profile, error } = await supabase
             .from('profiles' as any)
@@ -271,6 +278,7 @@ export default function AdminDashboard() {
             const role = (profile as any)?.role;
             if (role === 'admin' || role === 'super_admin' || role === 'editor') {
               setCurrentUserRole(role);
+              clearTimeout(timeoutId);
               setLoadingCheck(false);
             } else {
               router.replace('/');
