@@ -14,10 +14,38 @@ interface Props {
 export default function ChapterReaderClient({ mangaData, chapterData, prevChap, nextChap }: Props) {
     const [currentPage, setCurrentPage] = useState(1);
     const [showControls, setShowControls] = useState(true);
-    const [zoomLevel, setZoomLevel] = useState(100); // 100% width by default
+
+    // 🔥 FIX: الزوم الافتراضي حسب نوع الجهاز
+    const getDefaultZoom = () => {
+        // التحقق من حجم الشاشة
+        if (typeof window !== 'undefined') {
+            const isMobile = window.innerWidth < 768; // md breakpoint
+            return isMobile ? 100 : 30; // Mobile: 100%, PC: 30%
+        }
+        return 30; // Default للـ SSR
+    };
+
+    const [zoomLevel, setZoomLevel] = useState(getDefaultZoom());
 
     const imagesList: string[] = Array.isArray(chapterData.images) ? chapterData.images as string[] : [];
     const totalPages = imagesList.length;
+
+    // 🔥 حفظ واستعادة تفضيلات الزوم
+    useEffect(() => {
+        // استعادة الزوم المحفوظ عند التحميل
+        const savedZoom = localStorage.getItem('reader_zoom_level');
+        if (savedZoom) {
+            const zoom = parseInt(savedZoom);
+            if (!isNaN(zoom) && zoom >= 30 && zoom <= 100) {
+                setZoomLevel(zoom);
+            }
+        }
+    }, []);
+
+    // حفظ الزوم عند تغييره
+    useEffect(() => {
+        localStorage.setItem('reader_zoom_level', zoomLevel.toString());
+    }, [zoomLevel]);
 
     // Auto-hide controls
     useEffect(() => {
@@ -42,7 +70,7 @@ export default function ChapterReaderClient({ mangaData, chapterData, prevChap, 
     // Zoom handlers
     const zoomIn = () => setZoomLevel(prev => Math.min(prev + 10, 100));
     const zoomOut = () => setZoomLevel(prev => Math.max(prev - 10, 30));
-    const resetZoom = () => setZoomLevel(100);
+    const resetZoom = () => setZoomLevel(getDefaultZoom()); // Reset إلى الافتراضي حسب الجهاز
 
     const handleTap = (e: React.MouseEvent) => {
         const clickX = e.clientX;
