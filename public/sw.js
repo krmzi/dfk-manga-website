@@ -1,18 +1,23 @@
-// Service Worker for PWA and Push Notifications - v3.0.0
-const CACHE_NAME = 'dfk-team-v3';
+// Service Worker for PWA and Push Notifications - v4.0.0
+// Simplified version - No fetch interception to avoid conflicts
 
-// Install event - skip caching to avoid errors
+const CACHE_NAME = 'dfk-team-v4';
+
+// Install event
 self.addEventListener('install', (event) => {
+    console.log('Service Worker v4.0.0 installing...');
     self.skipWaiting();
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+    console.log('Service Worker v4.0.0 activating...');
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
                     if (cacheName !== CACHE_NAME) {
+                        console.log('Deleting old cache:', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
@@ -22,19 +27,13 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Fetch event - Network only (no caching to avoid errors)
-self.addEventListener('fetch', (event) => {
-    // Skip non-http(s) requests (chrome-extension, etc.)
-    if (!event.request.url.startsWith('http')) {
-        return;
-    }
-
-    // Just pass through to network
-    event.respondWith(fetch(event.request));
-});
+// ⚠️ NO FETCH INTERCEPTION - Let all requests go through normally
+// This prevents "Failed to fetch" errors caused by Service Worker interference
 
 // Push event - show notification
 self.addEventListener('push', (event) => {
+    console.log('Push notification received');
+
     if (!event.data) {
         return;
     }
@@ -68,6 +67,7 @@ self.addEventListener('push', (event) => {
 
 // Notification click event
 self.addEventListener('notificationclick', (event) => {
+    console.log('Notification clicked');
     event.notification.close();
 
     if (event.action === 'close') {
@@ -91,3 +91,5 @@ self.addEventListener('notificationclick', (event) => {
         })
     );
 });
+
+console.log('Service Worker v4.0.0 loaded successfully');

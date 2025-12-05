@@ -74,10 +74,79 @@ CREATE POLICY "allow_read_chapters" ON public.chapters
 CREATE POLICY "allow_write_chapters" ON public.chapters
   FOR ALL USING (auth.uid() IS NOT NULL);
 
+-- Step 6.5: Create chapter_reads table if not exists
+CREATE TABLE IF NOT EXISTS public.chapter_reads (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  chapter_id UUID NOT NULL,
+  manga_id UUID NOT NULL,
+  read_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, chapter_id)
+);
+
+-- Chapter reads policies
+CREATE POLICY "allow_read_own_chapter_reads" ON public.chapter_reads
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "allow_insert_own_chapter_reads" ON public.chapter_reads
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "allow_update_own_chapter_reads" ON public.chapter_reads
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "allow_delete_own_chapter_reads" ON public.chapter_reads
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- Step 6.6: Create bookmarks table if not exists
+CREATE TABLE IF NOT EXISTS public.bookmarks (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  manga_id UUID NOT NULL REFERENCES public.mangas(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, manga_id)
+);
+
+-- Bookmarks policies
+CREATE POLICY "allow_read_own_bookmarks" ON public.bookmarks
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "allow_insert_own_bookmarks" ON public.bookmarks
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "allow_delete_own_bookmarks" ON public.bookmarks
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- Step 6.7: Create comments table if not exists
+CREATE TABLE IF NOT EXISTS public.comments (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  chapter_id UUID NOT NULL,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  username TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Comments policies (everyone can read, only owner can write/update/delete)
+CREATE POLICY "allow_read_comments" ON public.comments
+  FOR SELECT USING (true);
+
+CREATE POLICY "allow_insert_own_comments" ON public.comments
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "allow_update_own_comments" ON public.comments
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "allow_delete_own_comments" ON public.comments
+  FOR DELETE USING (auth.uid() = user_id);
+
 -- Step 7: Re-enable RLS
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.mangas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chapters ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.chapter_reads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.bookmarks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
 
 -- Step 8: Create trigger for new users
 CREATE OR REPLACE FUNCTION public.handle_new_user()

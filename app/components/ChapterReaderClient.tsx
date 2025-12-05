@@ -127,10 +127,10 @@ export default function ChapterReaderClient({ mangaData, chapterData, prevChap, 
             </div>
 
             {/* --- Bottom Bar (Controls & Nav) --- */}
-            <div className={`fixed bottom-0 left-0 right-0 z-50 transition-all duration-300 ${showControls ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}>
+            <div className={`fixed bottom-0 left-0 right-0 z-[99999] transition-all duration-300 ${showControls ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/90 to-transparent h-48 pointer-events-none" />
 
-                <div className="relative max-w-3xl mx-auto px-4 pb-8 pt-12 flex flex-col gap-6">
+                <div className="relative max-w-3xl mx-auto px-4 pb-20 md:pb-8 pt-12 flex flex-col gap-6">
 
                     {/* Zoom Controls */}
                     <div className="flex items-center justify-center gap-4">
