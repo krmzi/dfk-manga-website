@@ -23,6 +23,8 @@ export type Database = {
                     country: string
                     rating: number
                     status: string | null
+                    genres: string[] | null
+                    views: number | null
                 }
                 Insert: {
                     id?: string
@@ -35,6 +37,8 @@ export type Database = {
                     country: string
                     rating?: number
                     status?: string | null
+                    genres?: string[] | null
+                    views?: number | null
                 }
                 Update: {
                     id?: string
@@ -47,6 +51,8 @@ export type Database = {
                     country?: string
                     rating?: number
                     status?: string | null
+                    genres?: string[] | null
+                    views?: number | null
                 }
                 Relationships: []
             }

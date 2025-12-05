@@ -15,40 +15,27 @@ export default function Navbar() {
 
     // جلب بيانات المستخدم ودوره
     useEffect(() => {
-        const getUserAndRole = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
-
-            if (user) {
-                const { data: profile } = await supabase
-                    .from('profiles' as any)
-                    .select('role')
-                    .eq('id', user.id)
-                    .single();
-
-                if (profile) {
-                    setUserRole((profile as any).role);
-                }
-            }
-        };
-
-        getUserAndRole();
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            setUser(session?.user ?? null);
+        const subscription = supabase.auth.onAuthStateChange(async (event, session) => {
             if (session?.user) {
+                setUser(session.user);
+
+                // جلب دور المستخدم من profiles
                 const { data: profile } = await supabase
                     .from('profiles' as any)
                     .select('role')
                     .eq('id', session.user.id)
                     .single();
-                if (profile) setUserRole((profile as any).role);
+
+                if (profile) {
+                    setUserRole((profile as any).role);
+                }
             } else {
+                setUser(null);
                 setUserRole(null);
             }
         });
 
-        return () => subscription.unsubscribe();
+        return () => subscription.data.subscription.unsubscribe();
     }, []);
 
     // إغلاق القوائم عند تغيير الصفحة
