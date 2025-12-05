@@ -7,7 +7,7 @@ import { supabase } from '@/app/utils/supabase';
 
 const AVAILABLE_GENRES = ["Action", "Adventure", "Fantasy", "System", "Murim", "Magic", "Drama", "Romance", "Horror", "Mystery", "Supernatural", "Sci-Fi"];
 
-interface MangaOption { id: string; title: string; cover_image?: string | null; description?: string | null; country?: string; status?: string | null; rating?: number; genres?: string[]; bg_image?: string | null; slug?: string; }
+interface MangaOption { id: string; title: string; cover_image?: string | null; description?: string | null; country?: string; status?: string | null; rating?: number; genres?: string[] | null; bg_image?: string | null; slug?: string; }
 interface ChapterOption { id: string; chapter_number: number; created_at: string; images: string[]; }
 
 export default function AdminDashboard() {
