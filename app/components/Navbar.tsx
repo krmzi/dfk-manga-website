@@ -13,26 +13,139 @@ export default function Navbar() {
     const [userRole, setUserRole] = useState<string | null>(null);
     const [showUserMenu, setShowUserMenu] = useState(false);
 
-    // جلب بيانات المستخدم ودوره
+    // جلب بيانات المستخدم ودوره مع Error Handling قوي
     useEffect(() => {
-        const subscription = supabase.auth.onAuthStateChange(async (event, session) => {
+        const SUPER_ADMIN_EMAIL = 'dfk_admin2002@gmail.com';
+        const ROLE_CACHE_KEY = 'user_role_cache';
+        const CACHE_DURATION = 5 * 60 * 1000; // 5 دقائق
+
+        // دالة للحصول على الـ role من cache
+        const getCachedRole = (userId: string): string | null => {
+            try {
+                const cached = localStorage.getItem(`${ROLE_CACHE_KEY}_${userId}`);
+                if (cached) {
+                    const { role, timestamp } = JSON.parse(cached);
+                    if (Date.now() - timestamp < CACHE_DURATION) {
+                        return role;
+                    }
+                }
+            } catch (e) {
+                console.error('Cache read error:', e);
+            }
+            return null;
+        };
+
+        // دالة لحفظ الـ role في cache
+        const setCachedRole = (userId: string, role: string) => {
+            try {
+                localStorage.setItem(`${ROLE_CACHE_KEY}_${userId}`, JSON.stringify({
+                    role,
+                    timestamp: Date.now()
+                }));
+            } catch (e) {
+                console.error('Cache write error:', e);
+            }
+        };
+
+        // دالة لجلب الـ role مع retry logic
+        const fetchUserRole = async (userId: string, email: string, retries = 3): Promise<string> => {
+            // 1. Hardcoded Super Admin Check (أعلى أولوية)
+            if (email === SUPER_ADMIN_EMAIL) {
+                return 'super_admin';
+            }
+
+            // 2. التحقق من الـ cache
+            const cachedRole = getCachedRole(userId);
+            if (cachedRole) {
+                console.log('✅ Role loaded from cache:', cachedRole);
+                return cachedRole;
+            }
+
+            // 3. محاولة جلب الـ role من قاعدة البيانات مع retry
+            for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                    console.log(`🔄 Fetching role from database (attempt ${attempt}/${retries})...`);
+                    const { data: profile, error } = await supabase
+                        .from('profiles' as any)
+                        .select('role')
+                        .eq('id', userId)
+                        .single();
+
+                    if (!error && profile) {
+                        const role = (profile as any).role || 'user';
+                        console.log('✅ Role fetched from database:', role);
+                        setCachedRole(userId, role);
+                        return role;
+                    }
+
+                    // إذا لم يتم العثور على profile، انتظر قليلاً ثم حاول مرة أخرى
+                    if (attempt < retries) {
+                        console.warn(`⚠️ Attempt ${attempt} failed, retrying...`);
+                        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                    }
+                } catch (err) {
+                    console.error(`❌ Attempt ${attempt} failed:`, err);
+                    if (attempt < retries) {
+                        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                    }
+                }
+            }
+
+            // 4. Fallback: إرجاع 'user' كـ default
+            console.warn('⚠️ All attempts failed, defaulting to user role');
+            return 'user';
+        };
+
+        // دالة لتحديث حالة المستخدم
+        const updateUserState = async (session: any) => {
             if (session?.user) {
+                console.log('👤 User detected:', session.user.email);
                 setUser(session.user);
 
-                // جلب دور المستخدم من profiles
-                const { data: profile } = await supabase
-                    .from('profiles' as any)
-                    .select('role')
-                    .eq('id', session.user.id)
-                    .single();
-
-                if (profile) {
-                    setUserRole((profile as any).role);
+                // جلب الـ role مع error handling
+                try {
+                    const role = await fetchUserRole(session.user.id, session.user.email || '');
+                    console.log('🎯 Setting user role:', role);
+                    setUserRole(role);
+                } catch (err) {
+                    console.error('❌ Failed to fetch user role:', err);
+                    // Fallback: إذا كان super admin email، استخدمه
+                    if (session.user.email === SUPER_ADMIN_EMAIL) {
+                        console.log('🔑 Using super admin fallback');
+                        setUserRole('super_admin');
+                    } else {
+                        setUserRole('user');
+                    }
                 }
             } else {
+                console.log('👋 No user session');
                 setUser(null);
                 setUserRole(null);
+                // مسح الـ cache عند تسجيل الخروج
+                try {
+                    Object.keys(localStorage)
+                        .filter(key => key.startsWith(ROLE_CACHE_KEY))
+                        .forEach(key => localStorage.removeItem(key));
+                } catch (e) {
+                    console.error('Cache clear error:', e);
+                }
             }
+        };
+
+        // 🔥 CRITICAL FIX: التحقق الفوري عند تحميل الصفحة
+        const initializeAuth = async () => {
+            console.log('🚀 Initializing auth...');
+            const { data: { session } } = await supabase.auth.getSession();
+            await updateUserState(session);
+        };
+
+        // تشغيل التحقق الفوري
+        initializeAuth();
+
+        // الاستماع للتغييرات
+        const subscription = supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('🔔 Auth state changed:', event);
+            await updateUserState(session);
         });
 
         return () => subscription.data.subscription.unsubscribe();

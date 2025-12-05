@@ -247,61 +247,128 @@ export default function AdminDashboard() {
     }
   };
 
-  // === AUTH CHECK (THE FIX) ===
+  // === AUTH CHECK (THE FIX) - نسخة محسّنة ===
   useEffect(() => {
+    const SUPER_ADMIN_EMAIL = 'dfk_admin2002@gmail.com';
+    const ROLE_CACHE_KEY = 'admin_role_cache';
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 دقائق
+
+    // دالة للحصول على الـ role من cache
+    const getCachedRole = (userId: string): string | null => {
+      try {
+        const cached = localStorage.getItem(`${ROLE_CACHE_KEY}_${userId}`);
+        if (cached) {
+          const { role, timestamp } = JSON.parse(cached);
+          if (Date.now() - timestamp < CACHE_DURATION) {
+            return role;
+          }
+        }
+      } catch (e) {
+        console.error('Cache read error:', e);
+      }
+      return null;
+    };
+
+    // دالة لحفظ الـ role في cache
+    const setCachedRole = (userId: string, role: string) => {
+      try {
+        localStorage.setItem(`${ROLE_CACHE_KEY}_${userId}`, JSON.stringify({
+          role,
+          timestamp: Date.now()
+        }));
+      } catch (e) {
+        console.error('Cache write error:', e);
+      }
+    };
+
+    // دالة لجلب الـ role مع retry logic
+    const fetchUserRole = async (userId: string, email: string, retries = 3): Promise<string | null> => {
+      // 1. Hardcoded Super Admin Check (أعلى أولوية)
+      if (email === SUPER_ADMIN_EMAIL) {
+        return 'super_admin';
+      }
+
+      // 2. التحقق من الـ cache
+      const cachedRole = getCachedRole(userId);
+      if (cachedRole) {
+        return cachedRole;
+      }
+
+      // 3. محاولة جلب الـ role من قاعدة البيانات مع retry
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          const { data: profile, error } = await supabase
+            .from('profiles' as any)
+            .select('role')
+            .eq('id', userId)
+            .single();
+
+          if (!error && profile) {
+            const role = (profile as any).role;
+            if (role === 'admin' || role === 'super_admin' || role === 'editor') {
+              setCachedRole(userId, role);
+              return role;
+            }
+          }
+
+          // إذا لم يتم العثور على profile، انتظر قليلاً ثم حاول مرة أخرى
+          if (attempt < retries) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          }
+        } catch (err) {
+          console.error(`Attempt ${attempt} failed:`, err);
+          if (attempt < retries) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          }
+        }
+      }
+
+      // 4. Fallback: إرجاع null (غير مصرح)
+      return null;
+    };
+
     const checkAuth = async () => {
       try {
         // Safety timeout
         const timeoutId = setTimeout(() => {
-          setLoadingCheck(false);
-        }, 3000);
+          console.warn('Auth check timeout - redirecting to login');
+          router.replace('/login');
+        }, 10000); // 10 ثواني
 
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-        if (!user) {
+        if (userError || !user) {
+          clearTimeout(timeoutId);
           router.replace('/login');
           return;
         }
 
-        if (user.email === 'dfk_admin2002@gmail.com') {
-          setCurrentUserRole('super_admin');
-          setLoadingCheck(false);
+        // جلب الـ role مع error handling
+        const role = await fetchUserRole(user.id, user.email || '');
+
+        if (role && (role === 'admin' || role === 'super_admin' || role === 'editor')) {
+          setCurrentUserRole(role);
           clearTimeout(timeoutId);
-        } else {
-          const { data: profile, error } = await supabase
-            .from('profiles' as any)
-            .select('role')
-            .eq('id', user.id)
-            .single();
+          setLoadingCheck(false);
 
-          if (!error && profile) {
-            const role = (profile as any)?.role;
-            if (role === 'admin' || role === 'super_admin' || role === 'editor') {
-              setCurrentUserRole(role);
-              clearTimeout(timeoutId);
-              setLoadingCheck(false);
-            } else {
-              router.replace('/');
-              return;
-            }
-          } else {
-            // If profile fetch fails, maybe allow access if super admin email match failed? 
-            // But we handled email match above. So just stop loading.
-            setLoadingCheck(false);
+          // Load data for all admins
+          fetchMangaList();
+          if (role === 'super_admin' || user.email === SUPER_ADMIN_EMAIL) {
+            fetchUsersList();
           }
-        }
-
-        // Load data for all admins
-        fetchMangaList();
-        if (user.email === 'dfk_admin2002@gmail.com') {
-          fetchUsersList();
+        } else {
+          clearTimeout(timeoutId);
+          console.warn('User does not have admin access');
+          router.replace('/');
         }
 
       } catch (err) {
         console.error("Auth check error:", err);
         setLoadingCheck(false);
+        router.replace('/login');
       }
     };
+
     checkAuth();
   }, [router]);
 
