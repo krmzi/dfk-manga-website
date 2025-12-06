@@ -7,6 +7,7 @@ import { ToastProvider } from "@/app/providers/ToastProvider";
 import ToastContainer from "./components/ToastContainer";
 import NotificationPrompt from "./components/NotificationPrompt";
 import QueryProvider from "./providers/QueryProvider";
+import { Analytics } from "@vercel/analytics/next";
 
 const cairo = Cairo({
   subsets: ["arabic"],
@@ -80,6 +81,9 @@ export default function RootLayout({
             <NotificationPrompt />
           </QueryProvider>
         </ToastProvider>
+
+        {/* Vercel Analytics */}
+        <Analytics />
       </body>
     </html>
   );
