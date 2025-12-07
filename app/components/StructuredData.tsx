@@ -1,4 +1,4 @@
-"use client";
+
 
 interface StructuredDataProps {
     data: Record<string, any>;
