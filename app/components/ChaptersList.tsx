@@ -64,7 +64,7 @@ export default function ChaptersList({ chapters, mangaSlug, mangaId }: ChaptersL
                                         {isNew && (
                                             <div className="relative overflow-hidden bg-red-600 text-white text-[9px] font-black px-2 py-[1px] rounded-[2px] flex items-center justify-center select-none shadow-[0_0_10px_rgba(220,38,38,0.5)]">
                                                 <span className="relative z-10">جديد</span>
-                                                <div className="animate-shine-alt absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg]" />
+                                                <div className="animate-scan" />
                                             </div>
                                         )}
                                     </div>
