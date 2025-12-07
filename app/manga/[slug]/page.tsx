@@ -7,6 +7,7 @@ import ViewCounter from '@/app/components/ViewCounter';
 import ShareButton from '@/app/components/ShareButton';
 import ChaptersList from '@/app/components/ChaptersList';
 import { Metadata } from 'next';
+import StructuredData, { createMangaSchema, createBreadcrumbSchema } from '@/app/components/StructuredData';
 
 export const revalidate = 0;
 
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const { data: manga } = await supabase
         .from('mangas')
-        .select('title, description, cover_image, rating, status')
+        .select('title, description, cover_image, rating, status, genres')
         .eq('slug', slug)
         .single();
 
@@ -30,20 +31,47 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         };
     }
 
+    const baseUrl = 'https://dfk-team.com'; // غيّره لدومينك الحقيقي
+    const mangaUrl = `${baseUrl}/manga/${slug}`;
+
     return {
         title: `${manga.title} | DFK Team`,
-        description: manga.description || `اقرأ ${manga.title} مترجم للعربية بأعلى جودة على DFK Team`,
+        description: manga.description || `اقرأ ${manga.title} مترجم للعربية بأعلى جودة على DFK Team. ${manga.status === 'Ongoing' ? 'مستمر' : 'مكتمل'} - تقييم ${manga.rating}/10`,
+        keywords: [
+            manga.title,
+            'مانهوا',
+            'مانجا',
+            'مانهوا مترجمة',
+            'قراءة مانهوا',
+            ...(manga.genres || [])
+        ],
+        authors: [{ name: 'DFK Team' }],
+        alternates: {
+            canonical: mangaUrl,
+        },
         openGraph: {
             title: manga.title,
             description: manga.description || `اقرأ ${manga.title} مترجم للعربية`,
-            images: manga.cover_image ? [manga.cover_image] : [],
+            images: manga.cover_image ? [{
+                url: manga.cover_image,
+                width: 800,
+                height: 1200,
+                alt: `غلاف مانهوا ${manga.title}`
+            }] : [],
             type: 'article',
+            url: mangaUrl,
+            siteName: 'DFK Team',
+            locale: 'ar_AR',
         },
         twitter: {
             card: 'summary_large_image',
             title: manga.title,
             description: manga.description || `اقرأ ${manga.title} مترجم للعربية`,
             images: manga.cover_image ? [manga.cover_image] : [],
+        },
+        robots: {
+            index: true,
+            follow: true,
         },
     };
 }
@@ -100,8 +128,21 @@ export default async function MangaDetails({ params }: Props) {
     const allChapters = (manga.chapters as any[] || []).sort((a, b) => b.chapter_number - a.chapter_number);
     const firstChapter = allChapters.length > 0 ? allChapters[allChapters.length - 1] : null;
 
+    // Structured Data للمانهوا
+    const baseUrl = 'https://dfk-team.com'; // غيّره لدومينك الحقيقي
+    const mangaSchema = createMangaSchema(manga);
+    const breadcrumbSchema = createBreadcrumbSchema([
+        { name: 'الرئيسية', url: baseUrl },
+        { name: 'المانهوا', url: `${baseUrl}/manga` },
+        { name: manga.title, url: `${baseUrl}/manga/${slug}` }
+    ]);
+
     return (
         <div className="min-h-screen bg-[#050505] text-[#ededed] pb-20 md:pb-10" dir="rtl">
+
+            {/* Structured Data for SEO */}
+            <StructuredData data={mangaSchema} />
+            <StructuredData data={breadcrumbSchema} />
 
             <ViewCounter mangaId={manga.id} />
 

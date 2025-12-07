@@ -4,6 +4,7 @@ import Sidebar from "./components/Sidebar";
 import NewReleasesSlider from "./components/NewReleasesSlider";
 import ChapterCard from "./components/ChapterCard";
 import { ChevronLeft, ChevronRight, LayoutGrid, Flame } from "lucide-react";
+import StructuredData, { createWebsiteSchema, createOrganizationSchema } from "./components/StructuredData";
 
 // ⚠️ إلغاء الكاش لضمان التحديث اللحظي (SSR)
 export const revalidate = 0;
@@ -112,8 +113,16 @@ export default async function Home() {
     }))
   })) || [];
 
+  // Structured Data للصفحة الرئيسية
+  const websiteSchema = createWebsiteSchema();
+  const organizationSchema = createOrganizationSchema();
+
   return (
     <div className="bg-[#050505] min-h-screen pb-20 text-right" dir="rtl">
+
+      {/* Structured Data for SEO */}
+      <StructuredData data={websiteSchema} />
+      <StructuredData data={organizationSchema} />
 
       {/* 1. Hero Section (مع حماية من البيانات الفارغة) */}
       {/* ✅ تمرير مصفوفة من الأعمال بدلاً من عمل واحد */}

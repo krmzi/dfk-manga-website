@@ -25,32 +25,72 @@ export const viewport: Viewport = {
 
 // إعدادات السيو (SEO) والظهور في البحث
 export const metadata: Metadata = {
-  metadataBase: new URL('https://dfk-team.com'), // استبدله بدومين موقعك الحقيقي مستقبلاً
+  metadataBase: new URL('https://dfk-team.com'), // غيّره بدومين موقعك الحقيقي
   title: {
     default: "DFK Team | منصة المانهوا العربية",
-    template: "%s | DFK Team", // هذا يجعل العناوين ديناميكية في الصفحات الداخلية
+    template: "%s | DFK Team",
   },
   description: "استمتع بقراءة أحدث فصول المانهوا والمانجا والويب تون مترجمة للغة العربية بأعلى جودة وبشكل مجاني.",
-  keywords: ["مانهوا", "مانجا", "ويب تون", "مانهوا مترجمة", "DFK Team", "قراءة مانهوا"],
+  keywords: ["مانهوا", "مانجا", "ويب تون", "مانهوا مترجمة", "DFK Team", "قراءة مانهوا", "manhwa", "manga", "webtoon", "مانهوا عربي"],
   authors: [{ name: "DFK Team" }],
-  icons: {
-    icon: "/favicon.ico", // تأكد من وجود صورة اللوجو بهذا الاسم في مجلد public
+  creator: "DFK Team",
+  publisher: "DFK Team",
+  category: "entertainment",
+  classification: "Manga Reading Platform",
+
+  // Verification codes (أضفها بعد التسجيل في Google Search Console)
+  verification: {
+    // google: 'YOUR_GOOGLE_VERIFICATION_CODE',
+    // yandex: 'YOUR_YANDEX_CODE',
+    // bing: 'YOUR_BING_CODE',
   },
+
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/icons/icon-192x192.png",
+  },
+
+  manifest: "/manifest.json",
+
   openGraph: {
     title: "DFK Team | منصة المانهوا العربية",
     description: "منصة قراءة المانهوا الأفضل عربياً",
     type: "website",
     locale: "ar_AR",
     siteName: "DFK Team",
+    url: "https://dfk-team.com",
+    images: [
+      {
+        url: "/og-image.png", // أضف صورة OG (1200x630)
+        width: 1200,
+        height: 630,
+        alt: "DFK Team - منصة المانهوا العربية"
+      }
+    ]
   },
+
   twitter: {
     card: "summary_large_image",
     title: "DFK Team",
     description: "منصة قراءة المانهوا الأفضل عربياً",
+    images: ["/og-image.png"],
+    // creator: "@dfkteam",
   },
+
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+
+  alternates: {
+    canonical: "https://dfk-team.com",
   },
 };
 
