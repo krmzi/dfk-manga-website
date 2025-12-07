@@ -360,42 +360,82 @@ body>* {
 
 /* --- Custom Animations for Premium Cards --- */
 
-/* 1. New Badge Scan Effect */
-@keyframes scan-overlay {
+/* 1. New Badge Slide Animation (Move Left <-> Right) */
+@keyframes slide-horizontal {
   0% {
-    transform: translateX(-100%) skewX(-20deg);
-    opacity: 0;
+    transform: translateX(0);
   }
 
-  20% {
-    opacity: 1;
+  50% {
+    transform: translateX(-5px);
   }
 
-  80% {
-    opacity: 1;
-  }
-
+  /* حركة خفيفة لليسار */
   100% {
-    transform: translateX(200%) skewX(-20deg);
-    opacity: 0;
+    transform: translateX(0);
   }
 }
 
-.animate-scan {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(90deg,
-      transparent,
-      rgba(255, 255, 255, 0.4),
-      transparent);
-  filter: blur(5px);
-  animation: scan-overlay 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+.animate-slide-horizontal {
+  animation: slide-horizontal 1.5s ease-in-out infinite;
 }
 
-/* 2. Soft Blink for Status Dot */
+/* 2. Color Pulse for Type Badge (MANHWA/MANGA) */
+@keyframes color-pulse-purple {
+
+  0%,
+  100% {
+    background-color: #9333ea;
+    box-shadow: 0 0 5px #9333ea;
+  }
+
+  50% {
+    background-color: #a855f7;
+    box-shadow: 0 0 15px #a855f7;
+  }
+}
+
+@keyframes color-pulse-red {
+
+  0%,
+  100% {
+    background-color: #dc2626;
+    box-shadow: 0 0 5px #dc2626;
+  }
+
+  50% {
+    background-color: #ef4444;
+    box-shadow: 0 0 15px #ef4444;
+  }
+}
+
+@keyframes color-pulse-blue {
+
+  0%,
+  100% {
+    background-color: #2563eb;
+    box-shadow: 0 0 5px #2563eb;
+  }
+
+  50% {
+    background-color: #3b82f6;
+    box-shadow: 0 0 15px #3b82f6;
+  }
+}
+
+.animate-pulse-purple {
+  animation: color-pulse-purple 2s infinite;
+}
+
+.animate-pulse-red {
+  animation: color-pulse-red 2s infinite;
+}
+
+.animate-pulse-blue {
+  animation: color-pulse-blue 2s infinite;
+}
+
+/* 3. Soft Blink for Status Dot */
 @keyframes soft-blink {
 
   0%,

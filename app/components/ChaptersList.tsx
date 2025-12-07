@@ -62,9 +62,8 @@ export default function ChaptersList({ chapters, mangaSlug, mangaId }: ChaptersL
 
                                         {/* New Badge */}
                                         {isNew && (
-                                            <div className="relative overflow-hidden bg-red-600 text-white text-[9px] font-black px-2 py-[1px] rounded-[2px] flex items-center justify-center select-none shadow-[0_0_10px_rgba(220,38,38,0.5)]">
-                                                <span className="relative z-10">جديد</span>
-                                                <div className="animate-scan" />
+                                            <div className="animate-slide-horizontal bg-red-600 text-white text-[9px] font-black px-2 py-[1px] rounded-[2px] shadow-[0_0_8px_rgba(220,38,38,0.6)]">
+                                                جديد
                                             </div>
                                         )}
                                     </div>
