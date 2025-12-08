@@ -14,29 +14,24 @@ export default function Icon() {
             // ImageResponse JSX element
             <div
                 style={{
-                    fontSize: 340,
-                    background: 'black',
+                    fontSize: 280, // حجم أصغر ومناسب
+                    background: '#050505', // أسود داكن
                     width: '100%',
                     height: '100%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#DC2626', // Red-600
-                    fontWeight: 900,
-                    borderRadius: '15%', // Rounded corners like app icons
-                    lineHeight: 1,
+                    color: '#DC2626', // أحمر
+                    fontWeight: 800, // سميك ولكن أنيق
+                    borderRadius: '24px', // حواف ناعمة جداً
                     fontFamily: 'sans-serif',
-                    border: '12px solid #DC2626', // Cool red border
-                    letterSpacing: '-15px',
+                    letterSpacing: '-4px', // تباعد أحرف متناسق
                 }}
             >
                 DFK
             </div>
         ),
-        // ImageResponse options
         {
-            // For convenience, we can re-use the exported icons size metadata
-            // config to also set the ImageResponse's width and height.
             ...size,
         }
     );
