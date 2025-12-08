@@ -190,8 +190,12 @@ export default function Navbar() {
                 <div className="h-full w-full max-w-[1600px] mx-auto px-3 md:px-8 flex items-center justify-between">
                     {/* Logo + Desktop Links */}
                     <div className="flex items-center gap-4 md:gap-12">
-                        <Link href="/" className="text-xl md:text-2xl font-black text-white">
-                            DFK<span className="text-red-600">TEAM</span>
+                        <Link href="/" className="flex items-center">
+                            <img
+                                src="/images/logo.png"
+                                alt="DFK Team Logo"
+                                className="h-8 md:h-10 w-auto object-contain"
+                            />
                         </Link>
 
                         {/* Desktop Navigation */}
@@ -297,8 +301,12 @@ export default function Navbar() {
                     <div className="fixed top-0 right-0 h-full w-[280px] bg-[#0a0a0a] border-l border-white/10 z-50 lg:hidden shadow-2xl animate-in slide-in-from-right duration-300">
                         {/* Header */}
                         <div className="h-[72px] flex items-center justify-between px-6 border-b border-white/10">
-                            <Link href="/" className="text-xl font-black text-white">
-                                DFK<span className="text-red-600">TEAM</span>
+                            <Link href="/" className="flex items-center">
+                                <img
+                                    src="/images/logo.png"
+                                    alt="DFK Team Logo"
+                                    className="h-8 w-auto object-contain"
+                                />
                             </Link>
                             <button
                                 onClick={() => setIsMobileMenuOpen(false)}
