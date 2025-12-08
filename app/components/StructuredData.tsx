@@ -27,22 +27,22 @@ export function createMangaSchema(manga: any) {
     return {
         '@context': 'https://schema.org',
         '@type': 'Book',
-        '@id': `https://dfk-team.site/manga/${manga.slug}`,
+        '@id': `https://www.dfk-team.site/manga/${manga.slug}`,
         name: manga.title,
         description: manga.description || `اقرأ ${manga.title} مترجم للعربية`,
         image: manga.cover_image,
         author: {
             '@type': 'Organization',
             name: 'DFK Team',
-            url: 'https://dfk-team.site'
+            url: 'https://www.dfk-team.site'
         },
         publisher: {
             '@type': 'Organization',
             name: 'DFK Team',
-            url: 'https://dfk-team.site',
+            url: 'https://www.dfk-team.site',
             logo: {
                 '@type': 'ImageObject',
-                url: 'https://dfk-team.site/logo.png' // أضف لوجو الموقع
+                url: 'https://www.dfk-team.site/logo.png'
             }
         },
         aggregateRating: manga.rating ? {
@@ -57,7 +57,7 @@ export function createMangaSchema(manga: any) {
         datePublished: manga.created_at,
         numberOfPages: manga.chapters?.length || 0,
         bookFormat: 'https://schema.org/EBook',
-        url: `https://dfk-team.site/manga/${manga.slug}`
+        url: `https://www.dfk-team.site/manga/${manga.slug}`
     };
 }
 
@@ -66,7 +66,7 @@ export function createChapterSchema(chapter: any, manga: any) {
     return {
         '@context': 'https://schema.org',
         '@type': 'Article',
-        '@id': `https://dfk-team.site/manga/${manga.slug}/chapter/${chapter.slug}`,
+        '@id': `https://www.dfk-team.site/manga/${manga.slug}/chapter/${chapter.slug}`,
         headline: `${manga.title} - الفصل ${chapter.chapter_number}`,
         description: `اقرأ الفصل ${chapter.chapter_number} من ${manga.title} مترجم للعربية`,
         image: chapter.images?.[0] || manga.cover_image,
@@ -77,18 +77,18 @@ export function createChapterSchema(chapter: any, manga: any) {
         publisher: {
             '@type': 'Organization',
             name: 'DFK Team',
-            url: 'https://dfk-team.site'
+            url: 'https://www.dfk-team.site'
         },
         datePublished: chapter.created_at,
         dateModified: chapter.updated_at || chapter.created_at,
         mainEntityOfPage: {
             '@type': 'WebPage',
-            '@id': `https://dfk-team.site/manga/${manga.slug}/chapter/${chapter.slug}`
+            '@id': `https://www.dfk-team.site/manga/${manga.slug}/chapter/${chapter.slug}`
         },
         isPartOf: {
             '@type': 'Book',
             name: manga.title,
-            url: `https://dfk-team.site/manga/${manga.slug}`
+            url: `https://www.dfk-team.site/manga/${manga.slug}`
         },
         inLanguage: 'ar'
     };
@@ -99,22 +99,22 @@ export function createWebsiteSchema() {
     return {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        '@id': 'https://dfk-team.site/#website',
+        '@id': 'https://www.dfk-team.site/#website',
         name: 'DFK Team',
         description: 'منصة قراءة المانهوا والمانجا المترجمة للعربية',
-        url: 'https://dfk-team.site',
+        url: 'https://www.dfk-team.site',
         potentialAction: {
             '@type': 'SearchAction',
             target: {
                 '@type': 'EntryPoint',
-                urlTemplate: 'https://dfk-team.site/search?q={search_term_string}'
+                urlTemplate: 'https://www.dfk-team.site/search?q={search_term_string}'
             },
             'query-input': 'required name=search_term_string'
         },
         publisher: {
             '@type': 'Organization',
             name: 'DFK Team',
-            url: 'https://dfk-team.site'
+            url: 'https://www.dfk-team.site'
         },
         inLanguage: 'ar'
     };
@@ -125,12 +125,12 @@ export function createOrganizationSchema() {
     return {
         '@context': 'https://schema.org',
         '@type': 'Organization',
-        '@id': 'https://dfk-team.site/#organization',
+        '@id': 'https://www.dfk-team.site/#organization',
         name: 'DFK Team',
-        url: 'https://dfk-team.site',
+        url: 'https://www.dfk-team.site',
         logo: {
             '@type': 'ImageObject',
-            url: 'https://dfk-team.site/logo.png'
+            url: 'https://www.dfk-team.site/logo.png'
         },
         description: 'فريق ترجمة المانهوا والمانجا للغة العربية',
         sameAs: [
@@ -167,7 +167,7 @@ export function createItemListSchema(mangas: any[], listName: string) {
             item: {
                 '@type': 'Book',
                 name: manga.title,
-                url: `https://dfk-team.site/manga/${manga.slug}`,
+                url: `https://www.dfk-team.site/manga/${manga.slug}`,
                 image: manga.cover_image
             }
         }))
