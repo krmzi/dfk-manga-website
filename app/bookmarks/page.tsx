@@ -45,37 +45,66 @@ export default function BookmarksPage() {
     const [loading, setLoading] = useState(true);
     const [bookmarks, setBookmarks] = useState<any[]>([]);
     const [user, setUser] = useState<any>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchBookmarks = async () => {
-            // 1. التحقق من المستخدم
-            const { data: { user } } = await supabase.auth.getUser();
+            try {
+                console.log('🔍 Fetching bookmarks...');
 
-            if (!user) {
-                // إذا لم يكن مسجلاً، وجهه لصفحة الدخول مع رابط العودة
-                router.replace("/login?next=/bookmarks");
-                return;
+                // 1. التحقق من المستخدم
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+                if (userError) {
+                    console.error('❌ User error:', userError);
+                    throw userError;
+                }
+
+                if (!user) {
+                    console.log('👋 No user, redirecting to login...');
+                    router.replace("/login?next=/bookmarks");
+                    return;
+                }
+
+                console.log('✅ User found:', user.email);
+                setUser(user);
+
+                // 2. جلب البيانات من جدول bookmarks وربطه بـ mangas
+                console.log('📚 Fetching bookmarks for user:', user.id);
+
+                const { data, error: fetchError } = await supabase
+                    .from('bookmarks')
+                    .select(`
+                        manga_id,
+                        mangas!inner (
+                            id,
+                            title,
+                            cover_image,
+                            status,
+                            rating,
+                            slug
+                        )
+                    `)
+                    .eq('user_id', user.id);
+
+                if (fetchError) {
+                    console.error('❌ Fetch error:', fetchError);
+                    setError(fetchError.message);
+                    setBookmarks([]);
+                } else {
+                    console.log('✅ Bookmarks fetched:', data?.length || 0);
+                    setBookmarks(data || []);
+                    setError(null);
+                }
+            } catch (err: any) {
+                console.error('❌ Unexpected error:', err);
+                setError(err.message || 'حدث خطأ غير متوقع');
+                setBookmarks([]);
+            } finally {
+                // مهم جداً: نوقف التحميل في جميع الحالات
+                setLoading(false);
+                console.log('✅ Loading complete');
             }
-
-            setUser(user);
-
-            // 2. جلب البيانات من جدول bookmarks وربطه بـ mangas
-            const { data, error } = await supabase
-                .from('bookmarks')
-                .select(`
-            manga_id,
-            mangas (
-                id, title, cover_image, status, rating, slug
-            )
-        `)
-                .eq('user_id', user.id);
-
-            if (error) {
-                console.error("Error fetching bookmarks:", error);
-            } else {
-                setBookmarks(data || []);
-            }
-            setLoading(false);
         };
 
         fetchBookmarks();
@@ -86,6 +115,26 @@ export default function BookmarksPage() {
             <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center text-white pt-20">
                 <Loader2 className="animate-spin text-red-600 mb-4" size={40} />
                 <p className="text-gray-500 font-bold animate-pulse">جاري تحميل مكتبتك...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center text-white pt-20 px-4">
+                <div className="max-w-md w-full bg-red-500/10 border border-red-500/20 rounded-2xl p-8 text-center">
+                    <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Heart className="text-red-500" size={32} />
+                    </div>
+                    <h2 className="text-2xl font-black text-white mb-2">حدث خطأ</h2>
+                    <p className="text-gray-400 mb-6">{error}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-bold transition-all"
+                    >
+                        إعادة المحاولة
+                    </button>
+                </div>
             </div>
         );
     }
