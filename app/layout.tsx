@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 
 // إعدادات السيو (SEO) والظهور في البحث
 export const metadata: Metadata = {
-  metadataBase: new URL('https://dfk-team.site'),
+  metadataBase: new URL('https://www.dfk-team.site'),
   title: {
     default: "DFK Team | منصة المانهوا العربية",
     template: "%s | DFK Team",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
 
   // Verification codes (أضفها بعد التسجيل في Google Search Console)
   verification: {
-    // google: 'YOUR_GOOGLE_VERIFICATION_CODE',
+    google: '35cef677015455a4', // Google Search Console
     // yandex: 'YOUR_YANDEX_CODE',
     // bing: 'YOUR_BING_CODE',
   },
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ar_AR",
     siteName: "DFK Team",
-    url: "https://dfk-team.site",
+    url: "https://www.dfk-team.site",
     images: [
       {
         url: "/og-image.png", // أضف صورة OG (1200x630)
@@ -90,7 +90,7 @@ export const metadata: Metadata = {
   },
 
   alternates: {
-    canonical: "https://dfk-team.site",
+    canonical: "https://www.dfk-team.site",
   },
 };
 

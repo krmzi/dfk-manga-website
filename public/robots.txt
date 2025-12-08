@@ -1,0 +1,13 @@
+# robots.txt for DFK Team Manga Website
+# https://www.dfk-team.site
+
+# Allow all search engines
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /admin
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://www.dfk-team.site/sitemap.xml
