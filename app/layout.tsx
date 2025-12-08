@@ -8,6 +8,7 @@ import ToastContainer from "./components/ToastContainer";
 import NotificationPrompt from "./components/NotificationPrompt";
 import QueryProvider from "./providers/QueryProvider";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const cairo = Cairo({
   subsets: ["arabic"],
@@ -122,8 +123,9 @@ export default function RootLayout({
           </QueryProvider>
         </ToastProvider>
 
-        {/* Vercel Analytics */}
+        {/* Vercel Analytics & Speed Insights */}
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
