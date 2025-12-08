@@ -190,12 +190,10 @@ export default function Navbar() {
                 <div className="h-full w-full max-w-[1600px] mx-auto px-3 md:px-8 flex items-center justify-between">
                     {/* Logo + Desktop Links */}
                     <div className="flex items-center gap-4 md:gap-12">
-                        <Link href="/" className="flex items-center">
-                            <img
-                                src="/images/logo.png"
-                                alt="DFK Team Logo"
-                                className="h-8 md:h-10 w-auto object-contain"
-                            />
+                        <Link href="/" className="inline-block group">
+                            <span className="text-xl md:text-2xl font-black text-white group-hover:text-red-600 transition-colors">
+                                DFK<span className="text-red-600 group-hover:text-white">TEAM</span>
+                            </span>
                         </Link>
 
                         {/* Desktop Navigation */}
