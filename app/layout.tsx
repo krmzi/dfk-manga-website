@@ -46,10 +46,11 @@ export const metadata: Metadata = {
     // bing: 'YOUR_BING_CODE',
   },
 
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/icons/icon-192x192.png",
-  },
+  // Next.js automatically uses icon.png from /app folder
+  // icons: {
+  //   icon: "/icon.png",
+  //   apple: "/icons/icon-192x192.png",
+  // },
 
   manifest: "/manifest.json",
 
