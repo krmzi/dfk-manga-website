@@ -374,7 +374,7 @@ export default function AdminDashboard() {
 
   useEffect(() => { if (activeTab === 'manage-content') fetchContentMangas(); }, [activeTab]);
 
-  // ✅ تم تحديث دالة الرفع الجماعي لتستخدم المنطق المحسن (Regex + Sorting)
+  // ✅ تم تحديث دالة الرفع الجماعي لتستخدم المنطق المحسن (Regex + Sorting) + منع التكرار
   const handleBulkUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     const zipFile = zipInputRef.current?.files?.[0];
@@ -405,6 +405,39 @@ export default function AdminDashboard() {
 
       const chapterNumbers = Object.keys(chaptersMap).sort((a, b) => parseFloat(a) - parseFloat(b));
       if (chapterNumbers.length === 0) throw new Error("لم يتم العثور على مجلدات مرقمة داخل ZIP");
+
+      // ✅ التحقق من الفصول الموجودة مسبقاً قبل البدء
+      const { data: existingChapters } = await supabase
+        .from('chapters')
+        .select('chapter_number')
+        .eq('manga_id', selectedMangaId)
+        .in('chapter_number', chapterNumbers.map(n => parseFloat(n)));
+
+      if (existingChapters && existingChapters.length > 0) {
+        const existingNumbers = existingChapters.map((c: any) => c.chapter_number).sort((a, b) => a - b);
+        const duplicatesList = existingNumbers.join(', ');
+
+        const confirmMessage = `⚠️ تحذير: الفصول التالية موجودة مسبقاً:\n\n${duplicatesList}\n\nهل تريد تخطي هذه الفصول والمتابعة برفع الفصول الجديدة فقط؟\n\n(اضغط "موافق" للمتابعة، أو "إلغاء" لإيقاف العملية)`;
+
+        if (!confirm(confirmMessage)) {
+          setChapterUploading(false);
+          return;
+        }
+
+        // تصفية الفصول المكررة
+        const existingSet = new Set(existingNumbers);
+        const filteredChapterNumbers = chapterNumbers.filter(n => !existingSet.has(parseFloat(n)));
+
+        if (filteredChapterNumbers.length === 0) {
+          alert("❌ جميع الفصول في هذا الملف موجودة مسبقاً! لا يوجد شيء جديد للرفع.");
+          setChapterUploading(false);
+          return;
+        }
+
+        // تحديث قائمة الفصول للرفع
+        chapterNumbers.length = 0;
+        chapterNumbers.push(...filteredChapterNumbers);
+      }
 
       setBulkTotal(chapterNumbers.length);
 
@@ -474,8 +507,23 @@ export default function AdminDashboard() {
   const handleUploadChapter = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedMangaId || !chapterNum || chapterImages.length === 0) return alert("بيانات ناقصة");
+
     setChapterUploading(true);
     try {
+      // ✅ التحقق من وجود الفصل مسبقاً
+      const { data: existingChapter } = await supabase
+        .from('chapters')
+        .select('chapter_number')
+        .eq('manga_id', selectedMangaId)
+        .eq('chapter_number', parseFloat(chapterNum))
+        .single();
+
+      if (existingChapter) {
+        alert(`❌ الفصل ${chapterNum} موجود مسبقاً! لا يمكن رفعه مرة أخرى.`);
+        setChapterUploading(false);
+        return;
+      }
+
       const urls = [];
       for (let i = 0; i < chapterImages.length; i++) {
         setUploadStatus(`رفع صورة ${i + 1}/${chapterImages.length}`);
