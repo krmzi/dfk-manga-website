@@ -6,7 +6,7 @@ import { supabase } from '@/app/utils/supabase';
 // Configure web-push with VAPID keys only if they exist
 if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
     webpush.setVapidDetails(
-        'mailto:admin@dfk-team.com',
+        'mailto:admin@dfk-team.site',
         process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
         process.env.VAPID_PRIVATE_KEY
     );

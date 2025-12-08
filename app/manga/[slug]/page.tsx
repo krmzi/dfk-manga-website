@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         };
     }
 
-    const baseUrl = 'https://dfk-team.com'; // غيّره لدومينك الحقيقي
+    const baseUrl = 'https://dfk-team.site'; // غيّره لدومينك الحقيقي
     const mangaUrl = `${baseUrl}/manga/${slug}`;
 
     return {
@@ -129,7 +129,7 @@ export default async function MangaDetails({ params }: Props) {
     const firstChapter = allChapters.length > 0 ? allChapters[allChapters.length - 1] : null;
 
     // Structured Data للمانهوا
-    const baseUrl = 'https://dfk-team.com'; // غيّره لدومينك الحقيقي
+    const baseUrl = 'https://dfk-team.site'; // غيّره لدومينك الحقيقي
     const mangaSchema = createMangaSchema(manga);
     const breadcrumbSchema = createBreadcrumbSchema([
         { name: 'الرئيسية', url: baseUrl },

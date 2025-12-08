@@ -15,7 +15,7 @@
 
 ### الخطوة 1️⃣: تحديث الدومين
 
-في الملفات التالية، غيّر `https://dfk-team.com` إلى دومينك الحقيقي:
+في الملفات التالية، غيّر `https://dfk-team\.site` إلى دومينك الحقيقي:
 
 ```typescript
 // app/sitemap.ts
@@ -25,7 +25,7 @@ const baseUrl = 'https://your-domain.com' // ← غيّر هنا
 const baseUrl = 'https://your-domain.com' // ← غيّر هنا
 
 // app/components/StructuredData.tsx
-// ابحث عن 'dfk-team.com' واستبدله بدومينك
+// ابحث عن 'dfk-team\.site' واستبدله بدومينك
 ```
 
 ---
@@ -73,9 +73,9 @@ import StructuredData, { createMangaSchema, createBreadcrumbSchema } from '@/app
 const mangaSchema = createMangaSchema(manga);
 
 const breadcrumbSchema = createBreadcrumbSchema([
-  { name: 'الرئيسية', url: 'https://dfk-team.com' },
-  { name: 'المانهوا', url: 'https://dfk-team.com/manga' },
-  { name: manga.title, url: `https://dfk-team.com/manga/${slug}` }
+  { name: 'الرئيسية', url: 'https://dfk-team\.site' },
+  { name: 'المانهوا', url: 'https://dfk-team\.site/manga' },
+  { name: manga.title, url: `https://dfk-team\.site/manga/${slug}` }
 ]);
 ```
 
@@ -109,10 +109,10 @@ import StructuredData, { createChapterSchema, createBreadcrumbSchema } from '@/a
 const chapterSchema = createChapterSchema(currentChapter, manga);
 
 const breadcrumbSchema = createBreadcrumbSchema([
-  { name: 'الرئيسية', url: 'https://dfk-team.com' },
-  { name: 'المانهوا', url: 'https://dfk-team.com/manga' },
-  { name: manga.title, url: `https://dfk-team.com/manga/${manga.slug}` },
-  { name: `الفصل ${currentChapter.chapter_number}`, url: `https://dfk-team.com/manga/${manga.slug}/chapter/${currentChapter.slug}` }
+  { name: 'الرئيسية', url: 'https://dfk-team\.site' },
+  { name: 'المانهوا', url: 'https://dfk-team\.site/manga' },
+  { name: manga.title, url: `https://dfk-team\.site/manga/${manga.slug}` },
+  { name: `الفصل ${currentChapter.chapter_number}`, url: `https://dfk-team\.site/manga/${manga.slug}/chapter/${currentChapter.slug}` }
 ]);
 ```
 
@@ -359,7 +359,7 @@ https://your-domain.com/robots.txt
 ## ⚠️ ملاحظات مهمة
 
 ### 1. **الدومين:**
-- غيّر `dfk-team.com` إلى دومينك في **جميع** الملفات
+- غيّر `dfk-team\.site` إلى دومينك في **جميع** الملفات
 
 ### 2. **الصور:**
 - أضف `og-image.png` في `public/` (1200x630 بكسل)

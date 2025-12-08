@@ -136,7 +136,7 @@ SEO Score: 93/100 ✅
 
 ### 1️⃣ **تحديث الدومين** (مهم!)
 
-ابحث عن `dfk-team.com` واستبدله بدومينك الحقيقي في:
+ابحث عن `dfk-team\.site` واستبدله بدومينك الحقيقي في:
 - `app/sitemap.ts`
 - `app/robots.ts`
 - `app/components/StructuredData.tsx`
@@ -147,7 +147,7 @@ SEO Score: 93/100 ✅
 **طريقة سريعة:**
 ```bash
 # في VS Code: Ctrl+Shift+H (Find & Replace in Files)
-# ابحث عن: dfk-team.com
+# ابحث عن: dfk-team\.site
 # استبدل بـ: your-actual-domain.com
 ```
 

@@ -79,7 +79,7 @@ Disallow: /api/
 **المشكلة:**
 ```
 robots.txt يشير إلى:
-Sitemap: https://dfk-team.com/sitemap.xml
+Sitemap: https://dfk-team\.site/sitemap.xml
 
 لكن الملف غير موجود! ❌
 ```
@@ -212,7 +212,7 @@ import { MetadataRoute } from 'next'
 import { supabase } from './utils/supabase'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://dfk-team.com'
+  const baseUrl = 'https://dfk-team\.site'
   
   // جلب كل المانهوا
   const { data: mangas } = await supabase
@@ -290,7 +290,7 @@ export default async function MangaDetails({ params }: Props) {
     publisher: {
       '@type': 'Organization',
       name: 'DFK Team',
-      url: 'https://dfk-team.com'
+      url: 'https://dfk-team\.site'
     }
   }
   
@@ -319,7 +319,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     // ... existing metadata
     alternates: {
-      canonical: `https://dfk-team.com/manga/${slug}`
+      canonical: `https://dfk-team\.site/manga/${slug}`
     }
   }
 }
@@ -419,8 +419,8 @@ export const metadata: Metadata = {
   // ...
   alternates: {
     languages: {
-      'ar': 'https://dfk-team.com',
-      'en': 'https://en.dfk-team.com',
+      'ar': 'https://dfk-team\.site',
+      'en': 'https://en.dfk-team\.site',
     }
   }
 }

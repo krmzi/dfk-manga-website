@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const baseUrl = 'https://dfk-team.com';
+  const baseUrl = 'https://dfk-team.site';
   const chapterUrl = `${baseUrl}/manga/${mangaSlug}/chapter/${chapterSlug}`;
   const chapterTitle = `${manga.title} - الفصل ${currentChapter.chapter_number}`;
 
@@ -128,7 +128,7 @@ export default async function ChapterReader({ params }: Props) {
     .single();
 
   // Structured Data للفصل
-  const baseUrl = 'https://dfk-team.com';
+  const baseUrl = 'https://dfk-team.site';
   const chapterSchema = createChapterSchema(currentChapter, manga);
   const breadcrumbSchema = createBreadcrumbSchema([
     { name: 'الرئيسية', url: baseUrl },

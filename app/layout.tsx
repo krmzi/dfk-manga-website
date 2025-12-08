@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 
 // إعدادات السيو (SEO) والظهور في البحث
 export const metadata: Metadata = {
-  metadataBase: new URL('https://dfk-team.com'), // غيّره بدومين موقعك الحقيقي
+  metadataBase: new URL('https://dfk-team.site'),
   title: {
     default: "DFK Team | منصة المانهوا العربية",
     template: "%s | DFK Team",
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ar_AR",
     siteName: "DFK Team",
-    url: "https://dfk-team.com",
+    url: "https://dfk-team.site",
     images: [
       {
         url: "/og-image.png", // أضف صورة OG (1200x630)
@@ -90,7 +90,7 @@ export const metadata: Metadata = {
   },
 
   alternates: {
-    canonical: "https://dfk-team.com",
+    canonical: "https://dfk-team.site",
   },
 };
 

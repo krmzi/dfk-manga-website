@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { supabase } from './utils/supabase'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://dfk-team.com' // غيّره إلى دومينك الحقيقي
+    const baseUrl = 'https://dfk-team.site' // الدومين الجديد
 
     try {
         // 1. جلب كل المانهوا

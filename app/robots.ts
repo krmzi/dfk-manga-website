@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-    const baseUrl = 'https://dfk-team.com' // غيّره إلى دومينك الحقيقي
+    const baseUrl = 'https://dfk-team.site' // الدومين الجديد
 
     return {
         rules: [
