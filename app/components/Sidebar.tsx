@@ -91,9 +91,9 @@ export default function Sidebar({ topMangas = [] }: SidebarProps) {
                                 </div>
                             </div>
 
-                            <h4 className="text-xs md:text-sm font-bold text-white line-clamp-2 leading-tight group-hover:text-red-500 transition-colors">
+                            <h3 className="text-xs md:text-sm font-bold text-white line-clamp-2 leading-tight group-hover:text-red-500 transition-colors">
                                 {item.title}
-                            </h4>
+                            </h3>
 
                             <div className="flex items-center gap-2 mt-auto">
                                 <div className="flex items-center gap-1 text-[9px] md:text-[10px] text-gray-400 bg-white/5 px-1.5 md:px-2 py-0.5 rounded border border-white/5">

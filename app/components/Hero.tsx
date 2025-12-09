@@ -110,6 +110,7 @@ export default function Hero({ featuredMangas }: HeroProps) {
                   <div className="flex items-center gap-2 md:gap-4 animate-slide-up-delay-2 w-full md:w-auto justify-center md:justify-start px-2 md:px-0">
                     <Link
                       href={`/manga/${slide.slug}`}
+                      aria-label={`Read ${slide.title}`}
                       className="flex-1 md:flex-none w-full md:w-auto px-4 md:px-8 py-2.5 md:py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-lg md:rounded-xl font-bold text-sm md:text-base transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(220,38,38,0.4)] flex items-center justify-center gap-2"
                     >
                       <Play size={16} fill="currentColor" className="md:w-5 md:h-5" />
@@ -118,6 +119,7 @@ export default function Hero({ featuredMangas }: HeroProps) {
 
                     <Link
                       href={`/manga/${slide.slug}`}
+                      aria-label={`View details for ${slide.title}`}
                       className="flex-1 md:flex-none w-full md:w-auto px-4 md:px-8 py-2.5 md:py-3.5 rounded-lg md:rounded-xl font-bold text-sm md:text-base text-white border border-white/20 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
                     >
                       <Info size={16} className="md:w-5 md:h-5" />
