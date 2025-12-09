@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { Star, Clock } from "lucide-react";
 
 interface Chapter {
@@ -46,12 +47,13 @@ export default function ChapterCard({ id, title, image, rating, chapters = [], s
                     <Link href={`/manga/${slug}`} className="block w-full h-full relative">
                         {/* التأكد من أن الصورة تملأ المساحة بالكامل دائماً */}
                         <div className="absolute inset-0">
-                            <img
+                            <Image
                                 src={image || "/placeholder.jpg"}
                                 alt={title}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                loading="lazy"
-                                onError={(e) => (e.currentTarget.src = '/placeholder.jpg')}
+                                fill
+                                sizes="(max-width: 768px) 110px, 130px"
+                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                priority={false}
                             />
                         </div>
                         {/* Overlay Gradient on Image */}

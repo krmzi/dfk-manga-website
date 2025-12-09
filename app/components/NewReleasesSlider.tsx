@@ -3,6 +3,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation } from 'swiper/modules';
 import { ChevronLeft, ChevronRight, Star, Flame } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -30,10 +31,12 @@ function VortexCard({ title, cover_image, country, rating, status, slug }: Manga
     return (
         <Link href={`/manga/${slug}`} className="group relative block w-full h-full">
             <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-[#1a1a1a] shadow-lg border border-white/5 transition-all duration-300 hover:shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:border-red-500/30">
-                <img
+                <Image
                     src={cover_image && cover_image.length > 5 ? cover_image : "https://placehold.co/600x900/111/666?text=No+Image"}
                     alt={title}
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                    fill
+                    sizes="(max-width: 768px) 160px, 220px"
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                     loading="lazy"
                 />
 
@@ -56,7 +59,7 @@ function VortexCard({ title, cover_image, country, rating, status, slug }: Manga
 
                 <div className="absolute bottom-0 inset-x-0 p-4 z-20 flex flex-col justify-end">
                     <div className="flex items-center gap-2 mb-1 opacity-80 group-hover:opacity-100 transition-opacity">
-                        {flagUrl && <img src={flagUrl} alt={country} className="w-3.5 h-3.5 rounded-sm shadow-sm" />}
+                        {flagUrl && <Image src={flagUrl} alt={country} width={14} height={14} className="rounded-sm shadow-sm" />}
                         <span className="text-[10px] text-gray-300 font-semibold uppercase">{country === 'KR' ? 'Manhwa' : country === 'CN' ? 'Manhua' : 'Manga'}</span>
                     </div>
 

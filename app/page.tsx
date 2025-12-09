@@ -7,7 +7,8 @@ import { ChevronLeft, ChevronRight, LayoutGrid, Flame } from "lucide-react";
 import StructuredData, { createWebsiteSchema, createOrganizationSchema } from "./components/StructuredData";
 
 // ⚠️ إلغاء الكاش لضمان التحديث اللحظي (SSR)
-export const revalidate = 0;
+// ⚠️ تفعيل الكاش لمدة 60 ثانية لتحسين الأداء
+export const revalidate = 60;
 
 // --- 1. التعريفات (TypeScript Definitions) ---
 interface Chapter {

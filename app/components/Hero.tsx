@@ -3,6 +3,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation, Parallax, EffectFade } from 'swiper/modules';
 import { Play, Info, Star, ChevronRight, ChevronLeft, Sparkles } from "lucide-react";
 import Link from 'next/link';
+import Image from 'next/image';
 
 import 'swiper/css';
 import 'swiper/css/pagination';
@@ -64,10 +65,13 @@ export default function Hero({ featuredMangas }: HeroProps) {
 
               {/* Background Image Layer */}
               <div className="absolute inset-0 z-0">
-                <img
+                <Image
                   src={slide.bg_image || slide.cover_image || "https://placehold.co/1920x1080/111/666?text=Hero"}
                   alt={slide.title}
-                  className="w-full h-full object-cover scale-105 animate-subtle-zoom blur-[3px]"
+                  fill
+                  priority={true} // Hero images should be prioritized
+                  className="object-cover scale-105 animate-subtle-zoom blur-[3px]"
+                  sizes="100vw"
                 />
 
                 {/* Stronger Gradient Overlay for Readability */}

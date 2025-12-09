@@ -380,18 +380,16 @@ body>* {
   animation: slide-horizontal 1.5s ease-in-out infinite;
 }
 
-/* 2. Color Pulse for Type Badge (MANHWA/MANGA) */
+/* 2. Color Pulse for Type Badge (MANHWA/MANGA) - Optimized */
 @keyframes color-pulse-purple {
 
   0%,
   100% {
     background-color: #9333ea;
-    box-shadow: 0 0 5px #9333ea;
   }
 
   50% {
     background-color: #a855f7;
-    box-shadow: 0 0 15px #a855f7;
   }
 }
 
@@ -400,12 +398,10 @@ body>* {
   0%,
   100% {
     background-color: #dc2626;
-    box-shadow: 0 0 5px #dc2626;
   }
 
   50% {
     background-color: #ef4444;
-    box-shadow: 0 0 15px #ef4444;
   }
 }
 
@@ -414,44 +410,41 @@ body>* {
   0%,
   100% {
     background-color: #2563eb;
-    box-shadow: 0 0 5px #2563eb;
   }
 
   50% {
     background-color: #3b82f6;
-    box-shadow: 0 0 15px #3b82f6;
   }
 }
 
 .animate-pulse-purple {
-  animation: color-pulse-purple 2s infinite;
+  animation: color-pulse-purple 3s infinite;
+  /* Slower for better perf */
 }
 
 .animate-pulse-red {
-  animation: color-pulse-red 2s infinite;
+  animation: color-pulse-red 3s infinite;
 }
 
 .animate-pulse-blue {
-  animation: color-pulse-blue 2s infinite;
+  animation: color-pulse-blue 3s infinite;
 }
 
-/* 3. Soft Blink for Status Dot */
+/* 3. Soft Blink for Status Dot - Optimized */
 @keyframes soft-blink {
 
   0%,
   100% {
     opacity: 1;
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
   }
 
   50% {
-    opacity: 0.8;
-    transform: scale(0.95);
-    box-shadow: 0 0 8px 2px rgba(34, 197, 94, 0.2);
+    opacity: 0.6;
+    transform: scale(0.9);
   }
 }
 
 .animate-soft-blink {
-  animation: soft-blink 2s ease-in-out infinite;
+  animation: soft-blink 3s ease-in-out infinite;
 }
