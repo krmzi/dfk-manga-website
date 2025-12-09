@@ -108,18 +108,20 @@ export default function Hero({ featuredMangas }: HeroProps) {
 
                   {/* Buttons */}
                   <div className="flex items-center gap-2 md:gap-4 animate-slide-up-delay-2 w-full md:w-auto justify-center md:justify-start px-2 md:px-0">
-                    <Link href={`/manga/${slide.slug}`} className="flex-1 md:flex-none">
-                      <button className="w-full md:w-auto px-4 md:px-8 py-2.5 md:py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-lg md:rounded-xl font-bold text-sm md:text-base transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(220,38,38,0.4)] flex items-center justify-center gap-2">
-                        <Play size={16} fill="currentColor" className="md:w-5 md:h-5" />
-                        <span>اقرأ الآن</span>
-                      </button>
+                    <Link
+                      href={`/manga/${slide.slug}`}
+                      className="flex-1 md:flex-none w-full md:w-auto px-4 md:px-8 py-2.5 md:py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-lg md:rounded-xl font-bold text-sm md:text-base transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(220,38,38,0.4)] flex items-center justify-center gap-2"
+                    >
+                      <Play size={16} fill="currentColor" className="md:w-5 md:h-5" />
+                      <span>اقرأ الآن</span>
                     </Link>
 
-                    <Link href={`/manga/${slide.slug}`} className="flex-1 md:flex-none">
-                      <button className="w-full md:w-auto px-4 md:px-8 py-2.5 md:py-3.5 rounded-lg md:rounded-xl font-bold text-sm md:text-base text-white border border-white/20 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
-                        <Info size={16} className="md:w-5 md:h-5" />
-                        <span>التفاصيل</span>
-                      </button>
+                    <Link
+                      href={`/manga/${slide.slug}`}
+                      className="flex-1 md:flex-none w-full md:w-auto px-4 md:px-8 py-2.5 md:py-3.5 rounded-lg md:rounded-xl font-bold text-sm md:text-base text-white border border-white/20 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                    >
+                      <Info size={16} className="md:w-5 md:h-5" />
+                      <span>التفاصيل</span>
                     </Link>
                   </div>
                 </div>
@@ -134,10 +136,10 @@ export default function Hero({ featuredMangas }: HeroProps) {
         {/* Navigation Arrows */}
         {slides.length > 1 && (
           <>
-            <button className="hero-prev hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white items-center justify-center hover:bg-[#dc2626] hover:border-[#dc2626] transition-all duration-300 active:scale-95 group-hover:opacity-100 opacity-0">
+            <button aria-label="Previous slide" className="hero-prev hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white items-center justify-center hover:bg-[#dc2626] hover:border-[#dc2626] transition-all duration-300 active:scale-95 group-hover:opacity-100 opacity-0">
               <ChevronLeft size={24} />
             </button>
-            <button className="hero-next hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white items-center justify-center hover:bg-[#dc2626] hover:border-[#dc2626] transition-all duration-300 active:scale-95 group-hover:opacity-100 opacity-0">
+            <button aria-label="Next slide" className="hero-next hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white items-center justify-center hover:bg-[#dc2626] hover:border-[#dc2626] transition-all duration-300 active:scale-95 group-hover:opacity-100 opacity-0">
               <ChevronRight size={24} />
             </button>
           </>

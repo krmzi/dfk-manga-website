@@ -92,10 +92,10 @@ export default function NewReleasesSlider({ mangas }: NewReleasesSliderProps) {
                 </div>
 
                 <div className="flex gap-2">
-                    <button className="nr-prev w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/5 hover:bg-white/20 text-white border border-white/10 transition-all flex items-center justify-center active:scale-95">
+                    <button aria-label="Previous slide" className="nr-prev w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/5 hover:bg-white/20 text-white border border-white/10 transition-all flex items-center justify-center active:scale-95">
                         <ChevronRight size={18} />
                     </button>
-                    <button className="nr-next w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/5 hover:bg-white/20 text-white border border-white/10 transition-all flex items-center justify-center active:scale-95">
+                    <button aria-label="Next slide" className="nr-next w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/5 hover:bg-white/20 text-white border border-white/10 transition-all flex items-center justify-center active:scale-95">
                         <ChevronLeft size={18} />
                     </button>
                 </div>
