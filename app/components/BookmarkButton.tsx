@@ -14,6 +14,11 @@ export default function BookmarkButton({ mangaId }: { mangaId: string }) {
         let isMounted = true;
 
         const checkBookmark = async () => {
+            // Safety Timeout: Force stop loading after 5 seconds no matter what
+            const timeoutId = setTimeout(() => {
+                if (isMounted && loading) setLoading(false);
+            }, 5000);
+
             try {
                 const { data: { user } } = await supabase.auth.getUser();
 
@@ -26,7 +31,7 @@ export default function BookmarkButton({ mangaId }: { mangaId: string }) {
                         .select("*")
                         .eq("user_id", user.id)
                         .eq("manga_id", mangaId)
-                        .maybeSingle();
+                        .maybeSingle(); // Better than single() for optional rows
 
                     if (!isMounted) return;
 
@@ -37,6 +42,7 @@ export default function BookmarkButton({ mangaId }: { mangaId: string }) {
             } catch (error) {
                 console.error("Error checking bookmark:", error);
             } finally {
+                clearTimeout(timeoutId);
                 if (isMounted) {
                     setLoading(false);
                 }
