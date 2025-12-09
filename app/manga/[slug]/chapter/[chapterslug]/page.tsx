@@ -5,6 +5,7 @@ import MarkAsRead from '@/app/components/MarkAsRead';
 import CommentsSection from '@/app/components/comments/CommentsSection';
 import StructuredData, { createChapterSchema, createBreadcrumbSchema } from '@/app/components/StructuredData';
 import { Metadata } from 'next';
+import { cache } from 'react';
 
 export const revalidate = 0;
 
@@ -15,34 +16,47 @@ interface Props {
   }>;
 }
 
+// --- Optimization: Cached Data Fetching ---
+// This ensures that the data fetched in generateMetadata is REUSED in the main component
+// without hitting the database again.
+const getChapterData = cache(async (mangaSlug: string, chapterSlug: string) => {
+  // Combine Manga + Chapter fetch into ONE query
+  const { data, error } = await supabase
+    .from('chapters')
+    .select(`
+      *,
+      manga:mangas!inner (
+        id,
+        title,
+        slug,
+        cover_image,
+        description
+      )
+    `)
+    .eq('slug', chapterSlug)
+    .eq('mangas.slug', mangaSlug)
+    .single();
+
+  return { data, error };
+});
+
+
 // Generate dynamic metadata for chapter pages
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug: mangaSlug, chapterslug: chapterSlug } = await params;
 
-  const { data: manga } = await supabase
-    .from('mangas')
-    .select('id, title, slug, cover_image')
-    .eq('slug', mangaSlug)
-    .single();
+  // Use the cached function
+  const { data: currentChapter } = await getChapterData(mangaSlug, chapterSlug);
 
-  if (!manga) {
+  if (!currentChapter || !currentChapter.manga) {
     return {
       title: 'فصل غير موجود | DFK Team',
     };
   }
 
-  const { data: currentChapter } = await supabase
-    .from('chapters')
-    .select('chapter_number, images')
-    .eq('manga_id', manga.id)
-    .eq('slug', chapterSlug)
-    .single();
-
-  if (!currentChapter) {
-    return {
-      title: 'فصل غير موجود | DFK Team',
-    };
-  }
+  // Access the joined manga data
+  // @ts-ignore - Supabase type inference for joined tables can be tricky
+  const manga = currentChapter.manga;
 
   const baseUrl = 'https://www.dfk-team.site';
   const chapterUrl = `${baseUrl}/manga/${mangaSlug}/chapter/${chapterSlug}`;
@@ -92,40 +106,37 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ChapterReader({ params }: Props) {
   const { slug: mangaSlug, chapterslug: chapterSlug } = await params;
 
-  const { data: manga } = await supabase
-    .from('mangas')
-    .select('id, title, slug')
-    .eq('slug', mangaSlug)
-    .single();
+  // 1. Fetch Main Data (Cached, so instant if metadata ran)
+  const { data: currentChapter, error } = await getChapterData(mangaSlug, chapterSlug);
 
-  if (!manga) return notFound();
+  if (error || !currentChapter || !currentChapter.manga) return notFound();
 
-  const { data: currentChapter, error } = await supabase
-    .from('chapters')
-    .select('*')
-    .eq('manga_id', manga.id)
-    .eq('slug', chapterSlug)
-    .single();
+  // @ts-ignore
+  const manga = currentChapter.manga;
 
-  if (error || !currentChapter) return notFound();
+  // 2. Fetch Prev/Next in Parallel
+  const [prevChapReq, nextChapReq] = await Promise.all([
+    supabase
+      .from('chapters')
+      .select('slug')
+      .eq('manga_id', manga.id)
+      .lt('chapter_number', currentChapter.chapter_number)
+      .order('chapter_number', { ascending: false })
+      .limit(1)
+      .single(),
 
-  const { data: prevChap } = await supabase
-    .from('chapters')
-    .select('slug')
-    .eq('manga_id', manga.id)
-    .lt('chapter_number', currentChapter.chapter_number)
-    .order('chapter_number', { ascending: false })
-    .limit(1)
-    .single();
+    supabase
+      .from('chapters')
+      .select('slug')
+      .eq('manga_id', manga.id)
+      .gt('chapter_number', currentChapter.chapter_number)
+      .order('chapter_number', { ascending: true })
+      .limit(1)
+      .single()
+  ]);
 
-  const { data: nextChap } = await supabase
-    .from('chapters')
-    .select('slug')
-    .eq('manga_id', manga.id)
-    .gt('chapter_number', currentChapter.chapter_number)
-    .order('chapter_number', { ascending: true })
-    .limit(1)
-    .single();
+  const prevChap = prevChapReq.data;
+  const nextChap = nextChapReq.data;
 
   // Structured Data للفصل
   const baseUrl = 'https://www.dfk-team.site';

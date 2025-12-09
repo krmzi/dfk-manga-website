@@ -46,42 +46,65 @@ function isNewChapter(dateString: string) {
 
 export default async function Home() {
 
-  // --- A. بيانات الهيرو والسلايدر (أحدث الأعمال المضافة) ---
-  const { data: newReleasesData } = await supabase
-    .from('mangas')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(10);
+  // --- A. Optimization: Parallel Data Fetching ---
+  const [newReleasesResult, latestUpdatesResult, topRatedResult] = await Promise.all([
+    // 1. New Releases (Slider)
+    supabase
+      .from('mangas')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(10),
 
-  // --- B. بيانات الشبكة (أحدث الفصول) ---
-  // نستخدم inner join لجلب المانهوا التي لها فصول فقط
-  const { data: latestChaptersData } = await supabase
-    .from('mangas')
-    .select(`
-      *,
-      chapters!inner (
-        chapter_number,
-        created_at,
-        slug
-      )
-    `)
-    // الترتيب الأولي (سيتم إعادة الترتيب بالكود لضمان الدقة)
-    .order('created_at', { ascending: false });
+    // 2. Latest Updates (Smart 2-Step Fetch)
+    (async () => {
+      // Step A: Get IDs of mangas that have recent chapters
+      // This is much faster than joining everything
+      const { data: recentChapters } = await supabase
+        .from('chapters')
+        .select('manga_id, created_at')
+        .order('created_at', { ascending: false })
+        .limit(100); // Fetch enough to ensure we get ~20 unique mangas
 
-  // --- C. بيانات السايدبار (الأكثر مشاهدة) ---
-  // 3. استعلام السايدبار
-  const { data: topRatedData } = await supabase
-    .from('mangas')
-    .select('id, title, cover_image, rating, country, status, views, slug') // ✅ أضفنا slug هنا
-    .order('views', { ascending: false })
-    .limit(5);
+      if (!recentChapters?.length) return { data: [] };
+
+      // Deduplicate manga IDs
+      const uniqueMangaIds = [...new Set(recentChapters.map(c => c.manga_id))].slice(0, 18);
+
+      // Step B: Fetch details for these specific mangas
+      const { data: mangas } = await supabase
+        .from('mangas')
+        .select(`
+          *,
+          chapters (
+            chapter_number,
+            created_at,
+            slug
+          )
+        `)
+        .in('id', uniqueMangaIds);
+
+      return { data: mangas };
+    })(),
+
+    // 3. Top Rated (Sidebar)
+    supabase
+      .from('mangas')
+      .select('id, title, cover_image, rating, country, status, views, slug')
+      .order('views', { ascending: false })
+      .limit(5)
+  ]);
+
+  const newReleasesData = newReleasesResult.data;
+  const latestChaptersData = latestUpdatesResult.data; // Now contains only relevant mangas
+  const topRatedData = topRatedResult.data;
 
   // --- 3. معالجة وتنسيق البيانات ---
 
   // 1. حساب "تاريخ التحديث" لكل مانهوا بناءً على أحدث فصل
   const processedMangas = (latestChaptersData as unknown as Manga[])?.map(manga => {
     // ترتيب فصول المانهوا الواحدة من الأحدث للأقدم
-    const sortedChapters = manga.chapters.sort((a, b) =>
+    // Note: Since we fetched specific mangas, we still sort their chapters here
+    const sortedChapters = (manga.chapters || []).sort((a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
 
@@ -94,25 +117,25 @@ export default async function Home() {
     };
   })
     // 2. ترتيب المانهوات في الشبكة حسب "من نزل له فصل مؤخراً"
-    .sort((a, b) => b.lastUpdateTimestamp - a.lastUpdateTimestamp);
+    .sort((a, b) => b.lastUpdateTimestamp - a.lastUpdateTimestamp) || [];
 
 
   // 3. تحويل البيانات للشكل الذي يفهمه ChapterCard
-  const displayContent = processedMangas?.map(manga => ({
+  const displayContent = processedMangas.map(manga => ({
     id: manga.id,
-    slug: manga.slug, // ✅
+    slug: manga.slug,
     title: manga.title,
     image: manga.cover_image,
     rating: manga.rating?.toString() || "0.0",
-    status: manga.status, // مهم جداً للتصميم الجديد
-    country: manga.country, // لعرض نوع العمل (مانهوا/مانجا)
+    status: manga.status,
+    country: manga.country,
     chapters: manga.chapters.slice(0, 3).map(ch => ({
       num: ch.chapter_number.toString(),
       time: getTimeAgo(ch.created_at),
       isNew: isNewChapter(ch.created_at),
       slug: ch.slug
     }))
-  })) || [];
+  }));
 
   // Structured Data للصفحة الرئيسية
   const websiteSchema = createWebsiteSchema();
