@@ -60,7 +60,7 @@ export default function Hero({ featuredMangas }: HeroProps) {
           }}
           className="w-full h-[260px] md:h-[500px] rounded-xl md:rounded-3xl overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.5)]"
         >
-          {slides.map((slide) => (
+          {slides.map((slide, index) => (
             <SwiperSlide key={slide.id} className="relative w-full h-full">
 
               {/* Background Image Layer */}
@@ -69,7 +69,7 @@ export default function Hero({ featuredMangas }: HeroProps) {
                   src={slide.bg_image || slide.cover_image || "https://placehold.co/1920x1080/111/666?text=Hero"}
                   alt={slide.title}
                   fill
-                  priority={true} // Hero images should be prioritized
+                  priority={index === 0} // Hero images should be prioritized ONLY for the first slide
                   className="object-cover scale-105 animate-subtle-zoom blur-[3px]"
                   sizes="100vw"
                 />

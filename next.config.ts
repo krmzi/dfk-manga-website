@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  compress: true, // Enable Gzip compression
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "i.pinimg.com" },

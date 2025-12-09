@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { Star, Activity, Eye, ArrowUpRight, MessageCircle } from "lucide-react";
 
 interface Manga {
@@ -70,10 +71,12 @@ export default function Sidebar({ topMangas = [] }: SidebarProps) {
 
                         {/* 2. Image */}
                         <div className="relative w-12 h-16 md:w-14 md:h-20 flex-shrink-0 rounded-lg overflow-hidden shadow-lg border border-white/5 group-hover:border-white/20 transition-all">
-                            <img
+                            <Image
                                 src={item.cover_image && item.cover_image.length > 5 ? item.cover_image : "/placeholder.jpg"}
-                                className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-transform duration-500"
+                                className="object-cover opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-transform duration-500"
                                 alt={item.title}
+                                fill
+                                sizes="(max-width: 768px) 48px, 56px"
                             />
                         </div>
 
