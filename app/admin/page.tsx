@@ -636,9 +636,19 @@ export default function AdminDashboard() {
             <form onSubmit={handleBulkUpload} className="space-y-8">
               <div>
                 <label className="label-text">اختر العمل</label>
+                {/* Search Input for Bulk Upload */}
+                <div className="relative mb-2">
+                  <input
+                    type="text"
+                    placeholder="ابحث عن المانهوا..."
+                    className="custom-input pl-10"
+                    onChange={(e) => setSearchManga(e.target.value)}
+                  />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                </div>
                 <select className="custom-input" value={selectedMangaId} onChange={e => setSelectedMangaId(e.target.value)}>
                   <option value="">-- اختر المانهوا --</option>
-                  {mangaList.map(m => <option key={m.id} value={m.id}>{m.title}</option>)}
+                  {mangaList.filter(m => m.title.toLowerCase().includes(searchManga.toLowerCase())).map(m => <option key={m.id} value={m.id}>{m.title}</option>)}
                 </select>
               </div>
 
@@ -685,7 +695,23 @@ export default function AdminDashboard() {
               <h3 className="text-2xl font-black">رفع فصل فردي</h3>
             </div>
             <div className="space-y-8">
-              <div><label className="label-text">اختر العمل</label><select className="custom-input" value={selectedMangaId} onChange={e => setSelectedMangaId(e.target.value)}><option value="">-- اختر --</option>{mangaList.map(m => <option key={m.id} value={m.id}>{m.title}</option>)}</select></div>
+              <div>
+                <label className="label-text">اختر العمل</label>
+                {/* Search Input for Single Upload */}
+                <div className="relative mb-2">
+                  <input
+                    type="text"
+                    placeholder="ابحث عن المانهوا..."
+                    className="custom-input pl-10"
+                    onChange={(e) => setSearchManga(e.target.value)}
+                  />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                </div>
+                <select className="custom-input" value={selectedMangaId} onChange={e => setSelectedMangaId(e.target.value)}>
+                  <option value="">-- اختر --</option>
+                  {mangaList.filter(m => m.title.toLowerCase().includes(searchManga.toLowerCase())).map(m => <option key={m.id} value={m.id}>{m.title}</option>)}
+                </select>
+              </div>
               <div><label className="label-text">رقم الفصل</label><input type="number" className="custom-input font-mono text-lg" placeholder="1" value={chapterNum} onChange={e => setChapterNum(e.target.value)} /></div>
               <div className="bg-gradient-to-br from-[#0a0a0a] to-[#050505] p-16 rounded-2xl border-2 border-dashed border-[#333] hover:border-blue-500 transition-all cursor-pointer text-center group shadow-inner" onClick={() => chapterInputRef.current?.click()}>
                 <input type="file" multiple accept="image/*" className="hidden" ref={chapterInputRef} onChange={e => e.target.files && setChapterImages(Array.from(e.target.files))} />
