@@ -226,6 +226,23 @@ export type Database = {
                     manga_id: string
                 }
                 Returns: void
+            },
+            get_latest_updated_mangas: {
+                Args: {
+                    page_offset: number
+                    page_limit: number
+                }
+                Returns: {
+                    id: string
+                    title: string
+                    slug: string
+                    cover_image: string | null
+                    rating: number
+                    status: string | null
+                    country: string
+                    latest_chapter_date: string
+                    total_chapters: number
+                }[]
             }
         }
         Enums: {
