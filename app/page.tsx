@@ -44,10 +44,15 @@ function isNewChapter(dateString: string) {
   return (new Date().getTime() - new Date(dateString).getTime()) < (24 * 60 * 60 * 1000);
 }
 
-export default async function Home() {
+// --- 3. مكون الصفحة الرئيسية (Home Page) ---
+export default async function Home(props: { searchParams: Promise<{ page?: string }> }) {
+  // Await searchParams in Next.js 15+
+  const searchParams = await props.searchParams;
+  const page = Number(searchParams?.page) || 1;
+  const itemsPerPage = 12;
 
   // --- A. Optimization: Parallel Data Fetching ---
-  const [newReleasesResult, latestUpdatesResult, topRatedResult] = await Promise.all([
+  const [newReleasesResult, latestIdsResult, topRatedResult] = await Promise.all([
     // 1. New Releases (Slider)
     supabase
       .from('mangas')
@@ -55,36 +60,11 @@ export default async function Home() {
       .order('created_at', { ascending: false })
       .limit(10),
 
-    // 2. Latest Updates (Smart 2-Step Fetch)
-    (async () => {
-      // Step A: Get IDs of mangas that have recent chapters
-      // This is much faster than joining everything
-      const { data: recentChapters } = await supabase
-        .from('chapters')
-        .select('manga_id, created_at')
-        .order('created_at', { ascending: false })
-        .limit(100); // Fetch enough to ensure we get ~20 unique mangas
-
-      if (!recentChapters?.length) return { data: [] };
-
-      // Deduplicate manga IDs
-      const uniqueMangaIds = [...new Set(recentChapters.map(c => c.manga_id))].slice(0, 18);
-
-      // Step B: Fetch details for these specific mangas
-      const { data: mangas } = await supabase
-        .from('mangas')
-        .select(`
-          *,
-          chapters (
-            chapter_number,
-            created_at,
-            slug
-          )
-        `)
-        .in('id', uniqueMangaIds);
-
-      return { data: mangas };
-    })(),
+    // 2. Latest Updates (Via RPC for correct pagination)
+    supabase.rpc('get_latest_updated_mangas', {
+      page_offset: (page - 1) * itemsPerPage,
+      page_limit: itemsPerPage
+    }),
 
     // 3. Top Rated (Sidebar)
     supabase
@@ -95,33 +75,52 @@ export default async function Home() {
   ]);
 
   const newReleasesData = newReleasesResult.data;
-  const latestChaptersData = latestUpdatesResult.data; // Now contains only relevant mangas
   const topRatedData = topRatedResult.data;
+
+  // --- B. Fetch Full Details for RPC Results ---
+  let latestChaptersData: any[] = [];
+  if (latestIdsResult.data && latestIdsResult.data.length > 0) {
+    const ids = latestIdsResult.data.map((m: any) => m.id);
+
+    // Fetch details + chapters for these specific IDs
+    const { data: details } = await supabase
+      .from('mangas')
+      .select(`
+        *,
+        chapters (
+            chapter_number,
+            created_at,
+            slug
+        )
+      `)
+      .in('id', ids);
+
+    // Re-sort in JS to match the RPC order (Latest Updated First)
+    if (details) {
+      const orderMap = new Map(ids.map((id: string, index: number) => [id, index]));
+      latestChaptersData = details.sort((a, b) => {
+        return (orderMap.get(a.id) || 0) - (orderMap.get(b.id) || 0);
+      });
+    }
+  }
 
   // --- 3. معالجة وتنسيق البيانات ---
 
-  // 1. حساب "تاريخ التحديث" لكل مانهوا بناءً على أحدث فصل
-  const processedMangas = (latestChaptersData as unknown as Manga[])?.map(manga => {
-    // ترتيب فصول المانهوا الواحدة من الأحدث للأقدم
-    // Note: Since we fetched specific mangas, we still sort their chapters here
-    const sortedChapters = (manga.chapters || []).sort((a, b) =>
+  // 1. حساب "تاريخ التحديث" لكل مانهوا
+  const processedMangas = latestChaptersData.map((manga: any) => {
+    const sortedChapters = (manga.chapters || []).sort((a: any, b: any) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
 
-    const lastUpdateDate = sortedChapters[0]?.created_at || manga.created_at;
-
     return {
       ...manga,
-      chapters: sortedChapters, // استبدال الفصول بالقائمة المرتبة
-      lastUpdateTimestamp: new Date(lastUpdateDate).getTime()
+      chapters: sortedChapters,
+      lastUpdateTimestamp: new Date(sortedChapters[0]?.created_at || manga.created_at).getTime()
     };
-  })
-    // 2. ترتيب المانهوات في الشبكة حسب "من نزل له فصل مؤخراً"
-    .sort((a, b) => b.lastUpdateTimestamp - a.lastUpdateTimestamp) || [];
+  });
 
-
-  // 3. تحويل البيانات للشكل الذي يفهمه ChapterCard
-  const displayContent = processedMangas.map(manga => ({
+  // 2. تحويل البيانات للشكل الذي يفهمه ChapterCard
+  const displayContent = processedMangas.map((manga: any) => ({
     id: manga.id,
     slug: manga.slug,
     title: manga.title,
@@ -129,7 +128,7 @@ export default async function Home() {
     rating: manga.rating?.toString() || "0.0",
     status: manga.status,
     country: manga.country,
-    chapters: manga.chapters.slice(0, 3).map(ch => ({
+    chapters: manga.chapters.slice(0, 3).map((ch: any) => ({
       num: ch.chapter_number.toString(),
       time: getTimeAgo(ch.created_at),
       isNew: isNewChapter(ch.created_at),
@@ -148,8 +147,7 @@ export default async function Home() {
       <StructuredData data={websiteSchema} />
       <StructuredData data={organizationSchema} />
 
-      {/* 1. Hero Section (مع حماية من البيانات الفارغة) */}
-      {/* ✅ تمرير مصفوفة من الأعمال بدلاً من عمل واحد */}
+      {/* 1. Hero Section */}
       <Hero featuredMangas={(newReleasesData || []) as any} />
 
       <div className="w-full max-w-full md:max-w-[1450px] mx-auto px-4 md:px-6 mt-6 md:mt-10">
@@ -164,7 +162,7 @@ export default async function Home() {
           {/* 3. Main Grid (75%) */}
           <div className="w-full xl:w-[75%]">
 
-            {/* Header المطور */}
+            {/* Header */}
             <div className="flex items-center justify-between mb-8 pb-4 border-b border-[#1a1a1a]">
               <div className="flex items-center gap-4">
                 <div className="relative group">
@@ -186,7 +184,7 @@ export default async function Home() {
 
             {/* Grid Container */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {displayContent.map((item) => (
+              {displayContent.map((item: any) => (
                 <ChapterCard key={item.id} {...item} />
               ))}
 
@@ -202,22 +200,42 @@ export default async function Home() {
               )}
             </div>
 
-            {/* Modern Pagination - Only show if more than one page would exist */}
-            {displayContent.length > 9 && (
-              <div className="flex justify-center items-center gap-4 mt-20 mb-8 select-none">
-                <button className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-[#111] hover:bg-[#1a1a1a] border border-[#222] rounded-full text-xs md:text-sm font-bold text-gray-400 hover:text-white transition-all hover:shadow-[0_5px_15px_rgba(0,0,0,0.5)] group disabled:opacity-50">
-                  <ChevronRight size={16} className="group-hover:-translate-x-1 transition-transform" /> التالي
+            {/* Modern Pagination - Real Links */}
+            <div className="flex justify-center items-center gap-4 mt-20 mb-8 select-none">
+              {/* زر الصفحة السابقة - يظهر فقط إذا لم نكن في الصفحة 1 */}
+              {page > 1 ? (
+                <a
+                  href={`/?page=${page - 1}`}
+                  className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-[#111] hover:bg-[#1a1a1a] border border-[#222] rounded-full text-xs md:text-sm font-bold text-gray-400 hover:text-white transition-all hover:shadow-[0_5px_15px_rgba(0,0,0,0.5)] group"
+                >
+                  <ChevronRight size={16} className="group-hover:-translate-x-1 transition-transform" /> السابق
+                </a>
+              ) : (
+                <button disabled className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-[#111]/50 border border-[#222]/50 rounded-full text-xs md:text-sm font-bold text-gray-600 cursor-not-allowed">
+                  <ChevronRight size={16} /> السابق
                 </button>
+              )}
 
-                <div className="flex items-center gap-2 bg-[#0a0a0a] px-3 py-2 rounded-full border border-[#222] shadow-inner">
-                  <button className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-red-600 to-red-800 text-white font-black text-sm shadow-[0_4px_10px_rgba(220,38,38,0.4)] transform scale-110">1</button>
-                </div>
-
-                <button className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-[#111] hover:bg-[#1a1a1a] border border-[#222] rounded-full text-xs md:text-sm font-bold text-gray-400 hover:text-white transition-all hover:shadow-[0_5px_15px_rgba(0,0,0,0.5)] group disabled:opacity-50">
-                  السابق <ChevronLeft size={16} className="group-hover:translate-x-1 transition-transform" />
-                </button>
+              <div className="flex items-center gap-2 bg-[#0a0a0a] px-3 py-2 rounded-full border border-[#222] shadow-inner">
+                <span className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-red-600 to-red-800 text-white font-black text-sm shadow-[0_4px_10px_rgba(220,38,38,0.4)] transform scale-110">
+                  {page}
+                </span>
               </div>
-            )}
+
+              {/* زر الصفحة التالية - نفترض وجود صفحة تالية إذا كانت الحالية ممتلئة */}
+              {displayContent.length === itemsPerPage ? (
+                <a
+                  href={`/?page=${page + 1}`}
+                  className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-[#111] hover:bg-[#1a1a1a] border border-[#222] rounded-full text-xs md:text-sm font-bold text-gray-400 hover:text-white transition-all hover:shadow-[0_5px_15px_rgba(0,0,0,0.5)] group"
+                >
+                  التالي <ChevronLeft size={16} className="group-hover:translate-x-1 transition-transform" />
+                </a>
+              ) : (
+                <button disabled className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-[#111]/50 border border-[#222]/50 rounded-full text-xs md:text-sm font-bold text-gray-600 cursor-not-allowed">
+                  التالي <ChevronLeft size={16} />
+                </button>
+              )}
+            </div>
           </div>
 
           {/* 4. Sidebar (25%) */}
