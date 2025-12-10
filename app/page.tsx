@@ -1,4 +1,5 @@
 import { supabase } from "./utils/supabase";
+import Link from "next/link";
 import Hero from "./components/Hero";
 import Sidebar from "./components/Sidebar";
 import NewReleasesSlider from "./components/NewReleasesSlider";
