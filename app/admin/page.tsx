@@ -89,19 +89,21 @@ export default function AdminDashboard() {
     });
   };
 
-  const uploadToCloudinary = async (file: File | Blob) => {
+  const uploadToR2 = async (file: File | Blob) => {
     const compressedFile = await compressImage(file);
 
     const formData = new FormData();
     formData.append('file', compressedFile);
-    formData.append('upload_preset', 'manga_upload');
 
-    const res = await fetch(`https://api.cloudinary.com/v1_1/dilcisoms/image/upload`, {
+    const res = await fetch('/api/upload', {
       method: 'POST',
       body: formData
     });
 
-    if (!res.ok) throw new Error("فشل الرفع");
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "فشل الرفع");
+    }
     const data = await res.json();
     return data.secure_url;
   };
@@ -208,10 +210,10 @@ export default function AdminDashboard() {
       let bgUrl = editingManga.bg_image;
 
       if (editCoverInputRef.current?.files?.[0]) {
-        coverUrl = await uploadToCloudinary(editCoverInputRef.current.files[0]);
+        coverUrl = await uploadToR2(editCoverInputRef.current.files[0]);
       }
       if (editBgInputRef.current?.files?.[0]) {
-        bgUrl = await uploadToCloudinary(editBgInputRef.current.files[0]);
+        bgUrl = await uploadToR2(editBgInputRef.current.files[0]);
       }
 
       const cleanSlug = editForm.title.trim().toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
@@ -460,7 +462,7 @@ export default function AdminDashboard() {
           const batchUrls = await Promise.all(
             batch.map(async (file) => {
               const blob = await file.async('blob');
-              return uploadToCloudinary(blob);
+              return uploadToR2(blob);
             })
           );
 
@@ -485,9 +487,9 @@ export default function AdminDashboard() {
     if (!mangaForm.title || !coverInputRef.current?.files?.[0]) return alert("بيانات ناقصة");
     setUploading(true);
     try {
-      const coverUrl = await uploadToCloudinary(coverInputRef.current.files[0]);
+      const coverUrl = await uploadToR2(coverInputRef.current.files[0]);
       let bgUrl = coverUrl;
-      if (bgInputRef.current?.files?.[0]) bgUrl = await uploadToCloudinary(bgInputRef.current.files[0]);
+      if (bgInputRef.current?.files?.[0]) bgUrl = await uploadToR2(bgInputRef.current.files[0]);
 
       // ✅ تحسين توليد الـ Slug بإضافة trim
       const cleanSlug = mangaForm.title.trim().toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
@@ -528,7 +530,7 @@ export default function AdminDashboard() {
       for (let i = 0; i < chapterImages.length; i++) {
         setUploadStatus(`رفع صورة ${i + 1}/${chapterImages.length}`);
         setUploadProgress(Math.round(((i + 1) / chapterImages.length) * 100));
-        urls.push(await uploadToCloudinary(chapterImages[i]));
+        urls.push(await uploadToR2(chapterImages[i]));
       }
       await supabase.from('chapters').insert({
         manga_id: selectedMangaId, chapter_number: parseFloat(chapterNum), slug: `${chapterNum}`, images: urls

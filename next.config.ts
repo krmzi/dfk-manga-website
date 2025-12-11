@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "cdn-icons-png.flaticon.com" },
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "placehold.co" },
+      { protocol: "https", hostname: "cdn.dfk-team.site" },
+      { protocol: "https", hostname: "*.r2.dev" },
     ],
   },
 };
