@@ -6,6 +6,7 @@ import NewReleasesSlider from "./components/NewReleasesSlider";
 import ChapterCard from "./components/ChapterCard";
 import { ChevronLeft, ChevronRight, LayoutGrid, Flame } from "lucide-react";
 import StructuredData, { createWebsiteSchema, createOrganizationSchema } from "./components/StructuredData";
+import Pagination from "./components/Pagination";
 
 // ⚠️ إلغاء الكاش لضمان التحديث اللحظي (SSR)
 // ⚠️ تفعيل الكاش لمدة 60 ثانية لتحسين الأداء
@@ -53,7 +54,7 @@ export default async function Home(props: { searchParams: Promise<{ page?: strin
   const itemsPerPage = 12;
 
   // --- A. Optimization: Parallel Data Fetching ---
-  const [newReleasesResult, latestIdsResult, topRatedResult] = await Promise.all([
+  const [newReleasesResult, latestIdsResult, topRatedResult, countResult] = await Promise.all([
     // 1. New Releases (Slider)
     supabase
       .from('mangas')
@@ -72,11 +73,16 @@ export default async function Home(props: { searchParams: Promise<{ page?: strin
       .from('mangas')
       .select('id, title, cover_image, rating, country, status, views, slug')
       .order('views', { ascending: false })
-      .limit(5)
+      .limit(5),
+
+    // 4. Total Count (for pagination)
+    supabase.from('mangas').select('*', { count: 'exact', head: true })
   ]);
 
   const newReleasesData = newReleasesResult.data;
   const topRatedData = topRatedResult.data;
+  const totalMangas = countResult.count || 0;
+  const totalPages = Math.ceil(totalMangas / itemsPerPage);
 
   // --- B. Fetch Full Details for RPC Results ---
   let latestChaptersData: any[] = [];
@@ -202,41 +208,7 @@ export default async function Home(props: { searchParams: Promise<{ page?: strin
             </div>
 
             {/* Modern Pagination - Real Links */}
-            <div className="flex justify-center items-center gap-4 mt-20 mb-8 select-none">
-              {/* زر الصفحة السابقة - يظهر فقط إذا لم نكن في الصفحة 1 */}
-              {page > 1 ? (
-                <a
-                  href={`/?page=${page - 1}`}
-                  className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-[#111] hover:bg-[#1a1a1a] border border-[#222] rounded-full text-xs md:text-sm font-bold text-gray-400 hover:text-white transition-all hover:shadow-[0_5px_15px_rgba(0,0,0,0.5)] group"
-                >
-                  <ChevronRight size={16} className="group-hover:-translate-x-1 transition-transform" /> السابق
-                </a>
-              ) : (
-                <button disabled className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-[#111]/50 border border-[#222]/50 rounded-full text-xs md:text-sm font-bold text-gray-600 cursor-not-allowed">
-                  <ChevronRight size={16} /> السابق
-                </button>
-              )}
-
-              <div className="flex items-center gap-2 bg-[#0a0a0a] px-3 py-2 rounded-full border border-[#222] shadow-inner">
-                <span className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-red-600 to-red-800 text-white font-black text-sm shadow-[0_4px_10px_rgba(220,38,38,0.4)] transform scale-110">
-                  {page}
-                </span>
-              </div>
-
-              {/* زر الصفحة التالية - نفترض وجود صفحة تالية إذا كانت الحالية ممتلئة */}
-              {displayContent.length === itemsPerPage ? (
-                <a
-                  href={`/?page=${page + 1}`}
-                  className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-[#111] hover:bg-[#1a1a1a] border border-[#222] rounded-full text-xs md:text-sm font-bold text-gray-400 hover:text-white transition-all hover:shadow-[0_5px_15px_rgba(0,0,0,0.5)] group"
-                >
-                  التالي <ChevronLeft size={16} className="group-hover:translate-x-1 transition-transform" />
-                </a>
-              ) : (
-                <button disabled className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-[#111]/50 border border-[#222]/50 rounded-full text-xs md:text-sm font-bold text-gray-600 cursor-not-allowed">
-                  التالي <ChevronLeft size={16} />
-                </button>
-              )}
-            </div>
+            <Pagination currentPage={page} totalPages={totalPages} />
           </div>
 
           {/* 4. Sidebar (25%) */}
