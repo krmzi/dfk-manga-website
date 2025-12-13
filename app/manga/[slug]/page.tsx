@@ -166,7 +166,7 @@ export default async function MangaDetails({ params }: Props) {
                         {/* Mobile: Cover centered */}
                         <div className="md:hidden w-[180px] mx-auto mb-6 relative">
                             <div className="aspect-[2/3] rounded-xl overflow-hidden border-2 border-[#222] shadow-[0_0_40px_rgba(220,38,38,0.2)]">
-                                <img src={manga.cover_image} className="w-full h-full object-cover" />
+                                <img src={manga.cover_image || "/placeholder.jpg"} className="w-full h-full object-cover" alt={manga.title} />
                             </div>
                         </div>
 
