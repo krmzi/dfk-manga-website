@@ -146,33 +146,39 @@ export default async function MangaDetails({ params }: Props) {
 
             <ViewCounter mangaId={manga.id} />
 
-            {/* 1. Immersive Background Blur */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-                <div className="absolute top-0 inset-x-0 h-[80vh] bg-gradient-to-b from-red-900/10 via-[#050505]/95 to-[#050505]" />
+            {/* 1. Hero Background (Restored & Improved) */}
+            <div className="absolute top-0 left-0 right-0 h-[600px] w-full overflow-hidden z-0">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/60 to-[#050505] z-10" />
+                <div className="absolute inset-0 bg-black/40 z-0" />
                 <img
                     src={manga.cover_image || "/placeholder_bg.jpg"}
-                    className="w-full h-[80vh] object-cover opacity-20 blur-[100px] scale-125"
+                    className="w-full h-full object-cover opacity-50 blur-sm scale-110 mask-image-gradient"
                     alt=""
                 />
             </div>
 
-            <div className="relative z-10 max-w-[1600px] mx-auto px-4 md:px-8 py-8 md:py-12">
+            <div className="relative z-10 max-w-[1400px] mx-auto px-4 md:px-8 py-8 md:py-12 mt-20 md:mt-40">
 
-                <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] xl:grid-cols-[380px_1fr] gap-10 items-start">
+                <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
 
-                    {/* 2. Sidebar (Sticky) - Cover & Actions */}
-                    <div className="lg:sticky lg:top-8 w-full">
-                        <div className="relative group perspective-1000">
-                            {/* Glow Effect */}
-                            <div className="absolute -inset-1 bg-gradient-to-tr from-red-600 to-red-900 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition duration-1000"></div>
+                    {/* 2. Sidebar - Cover & Actions */}
+                    <div className="w-full lg:w-[320px] flex-shrink-0 relative">
+                        {/* Mobile: Cover centered */}
+                        <div className="md:hidden w-[180px] mx-auto mb-6 relative">
+                            <div className="aspect-[2/3] rounded-xl overflow-hidden border-2 border-[#222] shadow-[0_0_40px_rgba(220,38,38,0.2)]">
+                                <img src={manga.cover_image} className="w-full h-full object-cover" />
+                            </div>
+                        </div>
 
-                            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-[#1a1a1a]">
+                        {/* Desktop: Sticky Sidebar */}
+                        <div className="hidden md:block lg:sticky lg:top-24">
+                            <div className="relative aspect-[2/3] rounded-xl overflow-hidden border border-[#333] shadow-[0_0_30px_rgba(0,0,0,0.5)] bg-[#111]">
                                 <img
                                     src={manga.cover_image || "/placeholder.jpg"}
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    className="w-full h-full object-cover"
                                     alt={manga.title}
                                 />
-                                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-lg border border-white/10 font-bold text-xs shadow-lg uppercase tracking-wide flex items-center gap-2">
+                                <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-md text-white px-3 py-1 rounded-lg border border-white/10 font-bold text-xs shadow-lg uppercase flex items-center gap-2">
                                     <span className={`w-2 h-2 rounded-full ${manga.status === 'Ongoing' ? 'bg-green-500 animate-pulse' : 'bg-blue-500'}`}></span>
                                     {manga.status || "ONGOING"}
                                 </div>
@@ -180,11 +186,11 @@ export default async function MangaDetails({ params }: Props) {
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="mt-8 space-y-4">
+                        <div className="mt-6 md:mt-8 space-y-3">
                             {firstChapter && (
                                 <Link href={`/manga/${slug}/chapter/${firstChapter.slug}`} className="block w-full group">
-                                    <button className="w-full py-4 bg-white text-black font-black text-lg rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3 transition-all transform group-hover:-translate-y-1 group-hover:shadow-[0_10px_30px_rgba(255,255,255,0.2)]">
-                                        <BookOpen size={22} className="text-red-600" />
+                                    <button className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-black text-lg rounded-xl shadow-[0_5px_20px_rgba(220,38,38,0.3)] flex items-center justify-center gap-2 transition-transform active:scale-95">
+                                        <BookOpen size={20} />
                                         ابدأ القراءة
                                     </button>
                                 </Link>
@@ -272,6 +278,7 @@ export default async function MangaDetails({ params }: Props) {
                                 </button>
                             </div>
 
+                            {/* List Container */}
                             <ChaptersList
                                 chapters={allChapters}
                                 mangaSlug={slug}

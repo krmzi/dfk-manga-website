@@ -44,25 +44,25 @@ export default function ChaptersList({ chapters, mangaSlug, mangaId }: ChaptersL
         );
 
     return (
-        <div className="w-full bg-[#111] rounded-2xl border border-white/5 overflow-hidden shadow-2xl" suppressHydrationWarning>
+        <div className="w-full" suppressHydrationWarning>
 
             {/* Header: Search & Sort */}
-            <div className="p-4 md:p-5 border-b border-white/5 flex flex-col md:flex-row gap-4 justify-between items-center bg-white/[0.02]">
-                <div className="relative w-full md:w-auto md:min-w-[300px] group">
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-red-500 transition-colors" size={18} />
+            <div className="mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
+                <div className="relative w-full md:max-w-md group">
+                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-[#444] group-focus-within:text-red-500 transition-colors" size={18} />
                     <input
                         type="text"
                         placeholder="ابحث عن رقم الفصل..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-[#0a0a0a] text-gray-200 text-sm font-medium py-3 pr-11 pl-4 rounded-xl border border-[#222] focus:border-red-500/50 focus:ring-4 focus:ring-red-900/10 focus:outline-none transition-all placeholder:text-gray-600"
+                        className="w-full bg-[#0a0a0a] text-gray-200 text-sm font-medium py-3.5 pr-12 pl-4 rounded-xl border border-[#222] focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50 focus:outline-none transition-all placeholder:text-[#444]"
                     />
                 </div>
 
                 <div className="flex items-center gap-3 w-full md:w-auto">
                     <button
                         onClick={() => setIsAscending(!isAscending)}
-                        className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0a0a0a] border border-[#222] text-gray-400 hover:text-white hover:border-white/10 transition-all text-xs font-bold w-full md:w-auto"
+                        className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-[#0a0a0a] border border-[#222] text-gray-400 hover:text-white hover:border-[#444] transition-all text-xs font-bold w-full md:w-auto"
                     >
                         {isAscending ? <SortAsc size={16} /> : <SortDesc size={16} />}
                         {isAscending ? 'الأقدم أولاً' : 'الأحدث أولاً'}
@@ -71,7 +71,7 @@ export default function ChaptersList({ chapters, mangaSlug, mangaId }: ChaptersL
             </div>
 
             {/* List */}
-            <div className="max-h-[600px] overflow-y-auto custom-scrollbar p-2 space-y-1">
+            <div className="flex flex-col gap-2">
                 {filteredChapters.length > 0 ? (
                     filteredChapters.map((ch, index) => {
                         const isRead = ch.id ? readChapters.has(ch.id) : false;
@@ -81,24 +81,23 @@ export default function ChaptersList({ chapters, mangaSlug, mangaId }: ChaptersL
                             <Link
                                 href={`/manga/${mangaSlug}/chapter/${ch.slug}`}
                                 key={ch.chapter_number}
-                                className="group relative flex items-center justify-between p-3 md:p-4 rounded-lg hover:bg-white/[0.04] transition-all duration-300 border border-transparent hover:border-white/5"
-                                style={{ animationDelay: `${index * 50}ms` }}
+                                className="group relative flex items-center justify-between p-3 md:p-4 rounded-xl bg-[#0a0a0a] border border-[#1a1a1a] hover:border-[#333] hover:bg-[#111] transition-all duration-200"
                             >
                                 {/* Left Side: Number & Indicator */}
                                 <div className="flex items-center gap-4">
-                                    <div className={`relative w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-lg text-lg font-black tracking-tighter transition-all duration-300 ${isNew
-                                            ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(220,38,38,0.4)]'
+                                    <div className={`relative w-12 h-12 flex items-center justify-center rounded-lg text-lg font-black tracking-tighter transition-all duration-300 bg-[#151515] border border-[#222] ${isNew
+                                            ? 'text-red-500 border-red-900/30'
                                             : isRead
-                                                ? 'bg-[#1a1a1a] text-gray-600'
-                                                : 'bg-[#222] text-gray-300 group-hover:bg-[#2a2a2a] group-hover:text-white'
+                                                ? 'text-gray-600'
+                                                : 'text-gray-300 group-hover:text-white'
                                         }`}>
                                         {ch.chapter_number}
 
                                         {/* Blinking Dot for New Chapters */}
                                         {isNew && (
-                                            <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                                            <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-600"></span>
                                             </span>
                                         )}
                                     </div>
@@ -121,9 +120,9 @@ export default function ChaptersList({ chapters, mangaSlug, mangaId }: ChaptersL
                                         {isLoading ? (
                                             <div className="w-5 h-5 rounded-full bg-white/5 animate-pulse" />
                                         ) : isRead ? (
-                                            <EyeOff size={20} className="text-gray-600" />
+                                            <EyeOff size={20} className="text-green-600/50" />
                                         ) : (
-                                            <span className="text-gray-600 group-hover:text-white transition-colors">
+                                            <span className="text-gray-700 group-hover:text-gray-400 transition-colors">
                                                 <Eye size={20} />
                                             </span>
                                         )}
@@ -134,8 +133,8 @@ export default function ChaptersList({ chapters, mangaSlug, mangaId }: ChaptersL
                     })
                 ) : (
                     <div className="py-20 flex flex-col items-center justify-center text-center opacity-50">
-                        <Search size={40} className="mb-4 text-gray-600" />
-                        <p className="text-gray-400 font-medium">لم يتم العثور على أي فصل بهذا الرقم</p>
+                        <Search size={40} className="mb-4 text-gray-700" />
+                        <p className="text-gray-500 font-medium">لم يتم العثور على أي فصل بهذا الرقم</p>
                     </div>
                 )}
             </div>
