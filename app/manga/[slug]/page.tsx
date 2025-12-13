@@ -125,6 +125,14 @@ export default async function MangaDetails({ params }: Props) {
 
     if (error || !manga) return notFound();
 
+    // 3. (NEW) Fetch Recommended Mangas
+    // Simple logic: Fetch 4 random mangas (or just latest excluding current)
+    const { data: recommendedMangas } = await supabase
+        .from('mangas')
+        .select('id, title, cover_image, slug, rating')
+        .neq('id', manga.id)
+        .limit(4);
+
     const allChapters = (manga.chapters as any[] || []).sort((a, b) => b.chapter_number - a.chapter_number);
     const firstChapter = allChapters.length > 0 ? allChapters[allChapters.length - 1] : null;
 
@@ -200,6 +208,34 @@ export default async function MangaDetails({ params }: Props) {
                                 <ShareButton title={manga.title} />
                             </div>
                         </div>
+
+                        {/* (NEW) Recommended Sidebar Section */}
+                        {recommendedMangas && recommendedMangas.length > 0 && (
+                            <div className="mt-10 hidden lg:block">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="w-1 h-6 bg-red-600 rounded-full"></div>
+                                    <h3 className="text-white font-black text-lg">قد يعجبك أيضاً</h3>
+                                </div>
+                                <div className="space-y-4">
+                                    {recommendedMangas.map((rm: any) => (
+                                        <Link key={rm.id} href={`/manga/${rm.slug}`} className="flex gap-4 group">
+                                            <div className="w-[70px] h-[90px] flex-shrink-0 rounded-lg overflow-hidden border border-[#222]">
+                                                <img src={rm.cover_image || "/placeholder.jpg"} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={rm.title} />
+                                            </div>
+                                            <div className="flex flex-col justify-center">
+                                                <h4 className="text-gray-200 font-bold text-sm leading-tight group-hover:text-red-500 transition-colors line-clamp-2 mb-1.5">
+                                                    {rm.title}
+                                                </h4>
+                                                <div className="flex items-center gap-1.5">
+                                                    <Star size={12} className="text-yellow-500" fill="currentColor" />
+                                                    <span className="text-xs text-gray-500 font-bold">{rm.rating}</span>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
 
@@ -263,18 +299,13 @@ export default async function MangaDetails({ params }: Props) {
                         </div>
 
 
-                        {/* Content Tabs (Visual Only for now) & List */}
+
+                        {/* Content Tabs & List */}
                         <div className="w-full">
-                            {/* Tabs Header */}
-                            <div className="flex items-center gap-8 border-b border-white/10 mb-8 overflow-x-auto pb-1 custom-scrollbar">
-                                <button className="pb-4 border-b-2 border-red-600 text-white font-black text-xl md:text-2xl whitespace-nowrap px-2">
-                                    الفصول <span className="text-sm align-top text-gray-500 font-bold ml-1">{allChapters.length}</span>
-                                </button>
-                                <button className="pb-4 border-b-2 border-transparent text-gray-500 font-bold text-xl md:text-2xl hover:text-gray-300 transition-colors whitespace-nowrap px-2">
-                                    التعليقات <span className="text-sm align-top text-gray-600 font-bold ml-1">0</span>
-                                </button>
-                                <button className="pb-4 border-b-2 border-transparent text-gray-500 font-bold text-xl md:text-2xl hover:text-gray-300 transition-colors whitespace-nowrap px-2">
-                                    الشخصيات <span className="text-sm align-top text-gray-600 font-bold ml-1">0</span>
+                            {/* Tabs Header - Cleaned up */}
+                            <div className="flex items-center gap-2 mb-6 border-b border-[#222]">
+                                <button className="pb-3 border-b-2 border-red-600 text-white font-black text-xl px-4 transition-colors">
+                                    الفصول <span className="text-sm align-top text-gray-500 font-bold ml-1 bg-[#1a1a1a] px-2 py-0.5 rounded-full border border-[#333]">{allChapters.length}</span>
                                 </button>
                             </div>
 
