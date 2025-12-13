@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Heart, BookOpen, Home, Library, Mail } from "lucide-react";
+import { Heart, BookOpen, Home, Library, Mail, Info, Shield, FileText } from "lucide-react";
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
@@ -9,7 +9,7 @@ export default function Footer() {
             <div className="max-w-[1400px] mx-auto px-4 md:px-8">
 
                 {/* Main Content */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-8 md:mb-12">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-8 mb-8 md:mb-12">
 
                     {/* Brand Section */}
                     <div className="col-span-1 text-center md:text-right">
@@ -69,16 +69,50 @@ export default function Footer() {
                         </ul>
                     </div>
 
+                    {/* Legal Links */}
+                    <div className="col-span-1 text-center md:text-right">
+                        <h4 className="text-white font-black mb-4 md:mb-6 text-lg">سياسات الموقع</h4>
+                        <ul className="flex flex-col gap-3 text-sm md:text-base">
+                            <li>
+                                <Link
+                                    href="/about"
+                                    className="text-gray-400 hover:text-red-500 transition-colors font-medium flex items-center justify-center md:justify-start gap-2 group min-h-[44px] md:min-h-0"
+                                >
+                                    <Info size={16} className="group-hover:scale-110 transition-transform" />
+                                    من نحن
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/privacy"
+                                    className="text-gray-400 hover:text-red-500 transition-colors font-medium flex items-center justify-center md:justify-start gap-2 group min-h-[44px] md:min-h-0"
+                                >
+                                    <Shield size={16} className="group-hover:scale-110 transition-transform" />
+                                    سياسة الخصوصية
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/terms"
+                                    className="text-gray-400 hover:text-red-500 transition-colors font-medium flex items-center justify-center md:justify-start gap-2 group min-h-[44px] md:min-h-0"
+                                >
+                                    <FileText size={16} className="group-hover:scale-110 transition-transform" />
+                                    شروط الاستخدام
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
+
                     {/* Contact */}
                     <div className="col-span-1 text-center md:text-right">
                         <h4 className="text-white font-black mb-4 md:mb-6 text-lg">تواصل معنا</h4>
                         <div className="flex flex-col gap-3">
                             <a
-                                href="mailto:contact@dfkteam.com"
+                                href="mailto:ymcreation2020@gmail.com"
                                 className="text-gray-400 hover:text-red-500 transition-colors font-medium flex items-center justify-center md:justify-start gap-2 group min-h-[44px] md:min-h-0"
                             >
                                 <Mail size={16} className="group-hover:scale-110 transition-transform" />
-                                contact@dfkteam.com
+                                ymcreation2020@gmail.com
                             </a>
 
                             {/* Social Buttons - Compact */}
