@@ -138,7 +138,7 @@ export default async function MangaDetails({ params }: Props) {
     ]);
 
     return (
-        <div className="min-h-screen bg-[#050505] text-[#ededed] pb-20 md:pb-10" dir="rtl">
+        <div className="min-h-screen bg-[#050505] text-[#ededed] pb-20 md:pb-10 relative overflow-x-hidden" dir="rtl">
 
             {/* Structured Data for SEO */}
             <StructuredData data={mangaSchema} />
@@ -146,43 +146,46 @@ export default async function MangaDetails({ params }: Props) {
 
             <ViewCounter mangaId={manga.id} />
 
-            {/* Background - Hidden on mobile, shown on desktop */}
-            <div className="hidden md:block relative h-[500px] w-full overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/90 to-[#050505]/40 z-10" />
-                <img src={manga.bg_image || manga.cover_image || "/placeholder_bg.jpg"} className="w-full h-full object-cover opacity-40 blur-xl scale-110" alt="Background" />
+            {/* 1. Immersive Background Blur */}
+            <div className="fixed inset-0 z-0 pointer-events-none">
+                <div className="absolute top-0 inset-x-0 h-[80vh] bg-gradient-to-b from-red-900/10 via-[#050505]/95 to-[#050505]" />
+                <img
+                    src={manga.cover_image || "/placeholder_bg.jpg"}
+                    className="w-full h-[80vh] object-cover opacity-20 blur-[100px] scale-125"
+                    alt=""
+                />
             </div>
 
-            {/* Content Container */}
-            <div className="max-w-[1400px] mx-auto px-4 md:px-8 md:-mt-80 relative z-20">
+            <div className="relative z-10 max-w-[1600px] mx-auto px-4 md:px-8 py-8 md:py-12">
 
-                {/* Mobile: Vertical Layout | Desktop: Horizontal Layout */}
-                <div className="flex flex-col md:flex-row gap-6 md:gap-12 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] xl:grid-cols-[380px_1fr] gap-10 items-start">
 
-                    {/* Cover Image & Actions */}
-                    <div className="w-full md:w-auto md:max-w-[300px] flex-shrink-0">
+                    {/* 2. Sidebar (Sticky) - Cover & Actions */}
+                    <div className="lg:sticky lg:top-8 w-full">
+                        <div className="relative group perspective-1000">
+                            {/* Glow Effect */}
+                            <div className="absolute -inset-1 bg-gradient-to-tr from-red-600 to-red-900 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition duration-1000"></div>
 
-                        {/* Mobile: Smaller cover at top */}
-                        <div className="md:hidden w-full max-w-[200px] mx-auto mb-4">
-                            <div className="aspect-[2/3] rounded-xl overflow-hidden border border-white/10 shadow-[0_0_30px_rgba(220,38,38,0.15)] bg-[#1a1a1a] relative">
-                                <img src={manga.cover_image || "/placeholder.jpg"} className="w-full h-full object-cover" alt={manga.title} />
-                                <div className="absolute top-3 right-3 bg-green-600 text-white px-2.5 py-1 rounded-lg font-bold text-xs shadow-lg uppercase">{manga.status || "ONGOING"}</div>
-                            </div>
-                        </div>
-
-                        {/* Desktop: Larger cover */}
-                        <div className="hidden md:block">
-                            <div className="aspect-[2/3] rounded-xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(220,38,38,0.25)] bg-[#1a1a1a] relative">
-                                <img src={manga.cover_image || "/placeholder.jpg"} className="w-full h-full object-cover" alt={manga.title} />
-                                <div className="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded font-bold text-xs shadow-lg uppercase">{manga.status || "ONGOING"}</div>
+                            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-[#1a1a1a]">
+                                <img
+                                    src={manga.cover_image || "/placeholder.jpg"}
+                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    alt={manga.title}
+                                />
+                                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-lg border border-white/10 font-bold text-xs shadow-lg uppercase tracking-wide flex items-center gap-2">
+                                    <span className={`w-2 h-2 rounded-full ${manga.status === 'Ongoing' ? 'bg-green-500 animate-pulse' : 'bg-blue-500'}`}></span>
+                                    {manga.status || "ONGOING"}
+                                </div>
                             </div>
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="mt-4 md:mt-6 space-y-3">
+                        <div className="mt-8 space-y-4">
                             {firstChapter && (
-                                <Link href={`/manga/${slug}/chapter/${firstChapter.slug}`} className="block w-full">
-                                    <button className="w-full py-3.5 md:py-4 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95 min-h-[48px]">
-                                        <BookOpen size={20} /> ابدأ القراءة
+                                <Link href={`/manga/${slug}/chapter/${firstChapter.slug}`} className="block w-full group">
+                                    <button className="w-full py-4 bg-white text-black font-black text-lg rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3 transition-all transform group-hover:-translate-y-1 group-hover:shadow-[0_10px_30px_rgba(255,255,255,0.2)]">
+                                        <BookOpen size={22} className="text-red-600" />
+                                        ابدأ القراءة
                                     </button>
                                 </Link>
                             )}
@@ -193,65 +196,106 @@ export default async function MangaDetails({ params }: Props) {
                         </div>
                     </div>
 
-                    {/* Details & Chapters */}
-                    <div className="flex-1 w-full md:pt-4 lg:pt-32">
 
-                        {/* Title */}
-                        <h1 className="text-3xl md:text-4xl lg:text-6xl font-black text-white mb-4 md:mb-6 drop-shadow-2xl text-center md:text-right">{manga.title}</h1>
+                    {/* 3. Main Content Area */}
+                    <div className="flex flex-col gap-10">
 
-                        {/* Meta Info */}
-                        <div className="flex flex-wrap gap-2 md:gap-3 text-sm font-bold text-gray-400 mb-6 md:mb-8 justify-center md:justify-start">
-                            <span className="bg-[#111] px-3 md:px-4 py-2 rounded-lg border border-white/5 flex items-center gap-1.5">
-                                <Star className="inline text-yellow-500" size={16} /> {manga.rating}
-                            </span>
-                            <span className="bg-[#111] px-3 md:px-4 py-2 rounded-lg border border-white/5 flex items-center gap-1.5">
-                                <MapPin className="inline text-red-500" size={16} /> {manga.country}
-                            </span>
-                            <span className="bg-[#111] px-3 md:px-4 py-2 rounded-lg border border-white/5 flex items-center gap-1.5">
-                                <Layers className="inline text-blue-500" size={16} /> {allChapters.length} Chapters
-                            </span>
-                        </div>
+                        {/* Header Info */}
+                        <div className="space-y-6">
+                            {/* Breadcrumbs-ish & Year */}
+                            <div className="flex items-center gap-3 text-sm font-bold text-gray-500">
+                                <span>مانهوا</span>
+                                <span className="w-1 h-1 rounded-full bg-gray-700"></span>
+                                <span className="text-gray-400">{new Date(manga.created_at).getFullYear()}</span>
+                                <span className="w-1 h-1 rounded-full bg-gray-700"></span>
+                                <span className="flex items-center gap-1 text-red-500"><MapPin size={14} /> {manga.country}</span>
+                            </div>
 
-                        {/* Description */}
-                        <div className="mb-8 md:mb-12">
-                            <h3 className="text-lg md:text-xl font-black text-white mb-3 md:mb-4 border-r-4 border-red-600 pr-3">القصة</h3>
-                            <div className="bg-[#111]/80 p-4 md:p-6 rounded-2xl border border-white/5 text-gray-300 leading-7 md:leading-8 text-sm md:text-base">
-                                {manga.description || '...'}
+                            <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-white leading-tight tracking-tight drop-shadow-xl">{manga.title}</h1>
+
+                            {/* Stats Row */}
+                            <div className="flex flex-wrap items-center gap-6 md:gap-10 p-5 rounded-2xl bg-white/[0.03] border border-white/5 backdrop-blur-sm w-fit">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2.5 rounded-full bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
+                                        <Star size={20} fill="currentColor" />
+                                    </div>
+                                    <div>
+                                        <div className="text-xl font-black text-white">{manga.rating}</div>
+                                        <div className="text-xs font-bold text-gray-500">التقييم العام</div>
+                                    </div>
+                                </div>
+                                <div className="w-px h-10 bg-white/10 hidden md:block"></div>
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2.5 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                                        <Layers size={20} />
+                                    </div>
+                                    <div>
+                                        <div className="text-xl font-black text-white">{allChapters.length}</div>
+                                        <div className="text-xs font-bold text-gray-500">عدد الفصول</div>
+                                    </div>
+                                </div>
+                                <div className="w-px h-10 bg-white/10 hidden md:block"></div>
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2.5 rounded-full bg-green-500/10 text-green-500 border border-green-500/20">
+                                        <BookOpen size={20} />
+                                    </div>
+                                    <div>
+                                        <div className="text-xl font-black text-white">
+                                            {manga.status === "Ongoing" ? "مستمر" : "مكتمل"}
+                                        </div>
+                                        <div className="text-xs font-bold text-gray-500">الحالة</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            <div className="relative group">
+                                <p className="text-gray-300 leading-8 text-lg font-medium max-w-4xl opacity-90">
+                                    {manga.description}
+                                </p>
                             </div>
                         </div>
 
-                        {/* Chapters List */}
+
+                        {/* Content Tabs (Visual Only for now) & List */}
                         <div className="w-full">
-                            <div className="flex items-center justify-between mb-4 md:mb-6 border-b border-white/5 pb-3 md:pb-4">
-                                <h3 className="text-xl md:text-2xl font-black text-white flex items-center gap-2 md:gap-3">
-                                    <List className="text-red-600" size={20} /> الفصول
-                                </h3>
-                                <span className="text-xs md:text-sm text-gray-500 font-bold">{allChapters.length} فصل</span>
+                            {/* Tabs Header */}
+                            <div className="flex items-center gap-8 border-b border-white/10 mb-8 overflow-x-auto pb-1 custom-scrollbar">
+                                <button className="pb-4 border-b-2 border-red-600 text-white font-black text-xl md:text-2xl whitespace-nowrap px-2">
+                                    الفصول <span className="text-sm align-top text-gray-500 font-bold ml-1">{allChapters.length}</span>
+                                </button>
+                                <button className="pb-4 border-b-2 border-transparent text-gray-500 font-bold text-xl md:text-2xl hover:text-gray-300 transition-colors whitespace-nowrap px-2">
+                                    التعليقات <span className="text-sm align-top text-gray-600 font-bold ml-1">0</span>
+                                </button>
+                                <button className="pb-4 border-b-2 border-transparent text-gray-500 font-bold text-xl md:text-2xl hover:text-gray-300 transition-colors whitespace-nowrap px-2">
+                                    الشخصيات <span className="text-sm align-top text-gray-600 font-bold ml-1">0</span>
+                                </button>
                             </div>
 
-                            {/* Chapters Grid with Read Status */}
                             <ChaptersList
                                 chapters={allChapters}
                                 mangaSlug={slug}
                                 mangaId={manga.id}
                             />
                         </div>
+
                     </div>
                 </div>
             </div>
 
-            {/* Mobile: Sticky Bottom Actions (Alternative) */}
-            <div className="md:hidden fixed bottom-[70px] left-0 right-0 p-4 bg-gradient-to-t from-[#050505] via-[#050505]/95 to-transparent z-30 pointer-events-none">
-                <div className="pointer-events-auto max-w-md mx-auto">
+            {/* Mobile Bottom Action (Optional) */}
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/95 to-transparent z-40 md:hidden pointer-events-none">
+                <div className="pointer-events-auto flex gap-3">
                     {firstChapter && (
-                        <Link href={`/manga/${slug}/chapter/${firstChapter.slug}`}>
-                            <button className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl shadow-2xl flex items-center justify-center gap-2 transition-all active:scale-95 border border-red-500">
-                                <BookOpen size={20} /> ابدأ القراءة
+                        <Link href={`/manga/${slug}/chapter/${firstChapter.slug}`} className="flex-1">
+                            <button className="w-full py-3.5 bg-red-600 text-white font-black rounded-xl shadow-lg flex items-center justify-center gap-2">
+                                اقرأ الفصل الأول
                             </button>
                         </Link>
                     )}
                 </div>
             </div>
+
         </div>
     );
 }
